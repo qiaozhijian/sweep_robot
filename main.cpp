@@ -8,9 +8,59 @@
 
 serial::Serial ros_ser;
 extern SerialData myData;
-void callback(const std_msgs::String::ConstPtr &msg) {
-    ROS_INFO_STREAM("Write to serial port:" << msg->data);
-    ros_ser.write(msg->data);
+void callback(const std_msgs::Int32 ::ConstPtr &msg) {
+    switch (msg->data)
+    {
+        // esc
+        case 27:
+            break;
+        //w
+        case 119:
+            myData.moving = true;
+            Move(-WWWWWWWWWWWWWWWWWWWSWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW0.3f,0.f);
+            break;
+        //    s
+        case 115:
+            myData.moving = true;
+            Move(0.3f,0.f);
+            break;
+            //a
+        case 97:
+            myData.moving = true;
+            Move(0.0f,-0.5f);
+            break;
+        //    d
+        case 100:
+            myData.moving = true;
+            Move(0.0f,0.5f);
+            break;
+        //    space
+        case 32:
+            Move(0.0f,0.f);
+            break;
+        //    1
+        case 49:
+
+            break;
+        //    2
+        case 50:
+            
+            break;
+        //    3
+        case 51:
+            
+            break;
+        //    4
+        case 52:
+            
+            break;
+        //    5
+        case 53:
+            
+            break;
+        default:
+            break;
+    }
 }
 
 
@@ -18,8 +68,8 @@ int main(int argc, char **argv) {
     std_msgs::UInt8MultiArray r_buffer;
     ros::init(argc, argv, "myserialnode");
     ros::NodeHandle n;
-    ros::Subscriber command_sub = n.subscribe("keyboard", 1000, callback);
-
+    ros::Subscriber command_key = n.subscribe("keyboard", 10, callback);
+    ROS_INFO("myserialnode init.");
     //return 0;
     try {
         ros_ser.setPort("/dev/ttyUSB0");
@@ -40,7 +90,7 @@ int main(int argc, char **argv) {
 
 
     // 打开传感器开关
-    ros::Rate loop_rate(100);
+    ros::Rate loop_rate(5);
     while (ros::ok())
     {
         TurnAllSwitch(1);
@@ -61,7 +111,16 @@ int main(int argc, char **argv) {
         ros::spinOnce();
         loop_rate.sleep();
     }
-
+    static bool movingLast = false;
+    while (ros::ok())
+    {
+        if(myData.moving == false || movingLast == false)
+            Move(0.f,0.f);
+        movingLast = myData.moving;
+        myData.moving = false;
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
 
 
     //ros::Rate loop_rate(100);

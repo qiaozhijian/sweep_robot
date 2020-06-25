@@ -1,0 +1,11 @@
+<launch>
+    <!--- Sim Time -->
+    <param name="/use_sim_time" value="false" />
+
+    <!--- Run Rviz  args="-d $(find test_ros)/launch/test.rviz" -->
+    <!--- <node pkg="rviz" type="rviz" name="rviz"  /> -->
+
+    <node pkg="myserial" type="myserialnode"    name="ddsdfs"    output="screen"/>
+    <node pkg="myserial" type="keyboard_node"    name="ssdfds"    output="screen"/>
+
+</launch>

@@ -40,8 +40,8 @@ target_link_libraries( myserialnode
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}
         )
-add_executable( myserial_receivenode receive.cpp )
-target_link_libraries( myserial_receivenode
+add_executable( keyboard_node keyboard.cpp )
+target_link_libraries( keyboard_node
 ${catkin_LIBRARIES}
 ${PROJECT_NAME}
 )

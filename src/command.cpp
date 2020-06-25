@@ -26,35 +26,63 @@ uint16 CRC16_CCITT_FALSE(uint8 *puchMsg, unsigned int usDataLen) {
 }
 
 void GetSensorStatus(vector<uint8> data){
-    //可以不要
-    size_t len = data.size();
-    uint16_t startCode = CAT(data[0], data[1]);
+    size_t totalLen = data.size();
+    size_t lenRead = 0;
     uint16_t frameLen = CAT(data[2], data[3]);
-    uint16_t bodyLen = frameLen - 8;
-    uint16_t cntReply = CAT(data[4], data[5]);
-    uint16_t id = CAT(data[6], data[7]);
-    vector<uint8_t > body(data.begin() + 8, data.begin() + 8 + bodyLen);
-    uint16_t endCode = CAT(data[len-2], data[len-1]);
-    //std::cout << "\nbody: ";
-    //for(auto el : body) {
-    //    std::cout << int(el) << " ";
-    //}
-    //std::cout << "\n";
-    if(startCode==0xa5a5&&endCode==0x5a5a)
+    size_t lenTmp = frameLen + 4;
+    //处理一次读入多条信息
+    while(lenRead<totalLen)
     {
-        cout<<"heard "<<setbase(10)<<len<<" bytes: ";
-        for(int i=0;i<len;i++)
-            cout<<setbase(16)<<int(data[i])<<" ";
-        cout<<endl;
-        //cout<<setbase(16)<<int(id)<<endl;
-        switch (id){
-            case 0x8102:
-                if(CAT(body[0], body[1])==0xffff)
-                    myData.isAllOn = true;
-            break;
-        }
-    } else
-        cout<<"heard "<<setbase(10)<<len<<" wrong bytes."<<endl;
+        vector<uint8_t> dataTmp(data.begin() + lenRead, data.begin() + lenRead + lenTmp);
+        uint16_t startCode = CAT(dataTmp[0], dataTmp[1]);
+        frameLen = CAT(dataTmp[2], dataTmp[3]);
+        lenTmp = frameLen + 4;
+        uint16_t bodyLen = frameLen - 8;
+        uint16_t cntReply = CAT(dataTmp[4], dataTmp[5]);
+        uint16_t id = CAT(dataTmp[6], dataTmp[7]);
+        vector<uint8_t > body(dataTmp.begin() + 8, dataTmp.begin() + 8 + bodyLen);
+        uint16_t endCode = CAT(dataTmp[frameLen+2], dataTmp[frameLen+3]);
+        //std::cout << "\nbody: ";
+        //for(auto el : body) {
+        //    std::cout << int(el) << " ";
+        //}
+        //std::cout << "\n";
+        if(startCode==0xa5a5&&endCode==0x5a5a)
+        {
+            cout<<"heard "<<setbase(10)<<lenTmp<<" bytes: ";
+            for(int i=0;i<lenTmp;i++)
+                cout<<setbase(16)<<int(dataTmp[i])<<" ";
+            cout<<endl;
+            //cout<<setbase(16)<<int(id)<<endl;
+            switch (id){
+                case 0x8102:
+                    if(CAT(body[0], body[1])==0xffff)
+                        myData.isAllOn = true;
+                    break;
+            }
+        } else
+            cout<<"heard "<<setbase(10)<<lenTmp<<" wrong bytes."<<endl;
+        lenRead = lenRead + lenTmp;
+    }
+}
+
+// a5 a5 00 08 00 c8 01 02 90 18 5a 5a   		//获取传感器使能状态
+void AskSensorStatus() {
+    UART_TYPE08 data = {0};
+    data.startCode = SWOP(0xa5a5);
+    data.len = SWOP(0x0008);
+    data.cnt = SWOP(myData.cnt);
+    data.id = SWOP(0x0102);
+    uint16 check = CRC16_CCITT_FALSE(data.units+2,6);
+    data.checkCode = SWOP(check);
+    data.endCode = SWOP(0x5a5a);
+    //cout << hex << check << endl;
+    ros_ser.write(data.units,12);
+    //cout<<"write: ";
+    //for(int i=0;i<12;i++)
+    //    cout<<setbase(16)<<int(data.units[i])<<" ";
+    //cout<<endl;
+    myData.cnt++;
 }
 
 
@@ -80,21 +108,24 @@ void TurnAllSwitch(uint8_t mode)
     myData.cnt++;
 }
 
-// a5 a5 00 08 00 c8 01 02 90 18 5a 5a   		//获取传感器使能状态
-void AskSensorStatus() {
-    UART_TYPE08 data = {0};
+void Move(float vel_ms, float w_rads)
+{
+    int16_t vel = int16_t(vel_ms * 1000.f);
+    int16_t w = int16_t(w_rads * 1000.f);
+    UART_TYPE0C data = {0};
     data.startCode = SWOP(0xa5a5);
-    data.len = SWOP(0x0008);
+    data.len = SWOP(0x000c);
     data.cnt = SWOP(myData.cnt);
-    data.id = SWOP(0x0102);
-    uint16 check = CRC16_CCITT_FALSE(data.units+2,6);
+    data.id = SWOP(0x0202);
+    data.body1 = SWOP(vel);
+    data.body2 = SWOP(w);
+    uint16 check = CRC16_CCITT_FALSE(data.units+2,10);
     data.checkCode = SWOP(check);
     data.endCode = SWOP(0x5a5a);
-    //cout << hex << check << endl;
-    ros_ser.write(data.units,12);
+    ros_ser.write(data.units,16);
+    myData.cnt++;
     //cout<<"write: ";
-    //for(int i=0;i<12;i++)
+    //for(int i=0;i<16;i++)
     //    cout<<setbase(16)<<int(data.units[i])<<" ";
     //cout<<endl;
-    myData.cnt++;
 }

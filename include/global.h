@@ -12,6 +12,7 @@
 #include <std_msgs/Empty.h>
 #include "std_msgs/UInt8.h"
 #include "std_msgs/UInt8MultiArray.h"
+#include "std_msgs/Int32.h"
 #include <typeinfo>
 
 using namespace std;
@@ -48,6 +49,19 @@ typedef union {
     };
     unsigned char units[14];
 }UART_TYPE0A;
+typedef union {
+    struct {
+        unsigned short startCode;
+        unsigned short len;
+        unsigned short cnt;
+        unsigned short id;
+        unsigned short body1;
+        unsigned short body2;
+        unsigned short checkCode;
+        unsigned short endCode;
+    };
+    unsigned char units[16];
+}UART_TYPE0C;
 
 namespace global
 {

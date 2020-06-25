@@ -17,7 +17,7 @@ void callback(const std_msgs::Int32 ::ConstPtr &msg) {
         //w
         case 119:
             myData.moving = true;
-            Move(-WWWWWWWWWWWWWWWWWWWSWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW0.3f,0.f);
+            Move(0.3f,0.f);
             break;
         //    s
         case 115:

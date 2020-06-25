@@ -30,3 +30,21 @@
 *.exe
 *.out
 *.app
+
+*.udb
+*.so
+cmake*/
+*.kdev4
+# 忽略子文件夹的
+build/
+cmake-build-debug
+cmake-build-release
+dataset
+# 忽略根目录的
+/dataset
+.idea/
+.gou*
+*.yml
+/venv
+
+

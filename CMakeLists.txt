@@ -1,6 +1,27 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(myserial)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
+
+# Check C++11 or C++0x support
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    add_definitions(-DCOMPILEDWITHC11)
+    message(STATUS "Using flag -std=c++11.")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    add_definitions(-DCOMPILEDWITHC0X)
+    message(STATUS "Using flag -std=c++0x.")
+else()
+    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
+# 添加c++ 11标准支持
+set( CMAKE_CXX_FLAGS "-std=c++11" )
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
@@ -17,6 +38,9 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
 )
+# 寻找OpenCV库
+find_package( OpenCV 3 REQUIRED)
+# 添加头文件
 catkin_package(
         CATKIN_DEPENDS
         serial
@@ -26,22 +50,35 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 set(myserial_srclib
         src/crc.cpp
         src/command.cpp
         )
 
-add_library(${PROJECT_NAME} ${myserial_srclib})
+add_library(${PROJECT_NAME} ${myserial_srclib} )
 
 
-add_executable( myserialnode main.cpp )
+add_executable( myserialnode src/main.cpp)
 target_link_libraries( myserialnode
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}
         )
-add_executable( keyboard_node keyboard.cpp )
+add_executable( keyboard_node src/keyboard.cpp)
 target_link_libraries( keyboard_node
-${catkin_LIBRARIES}
-${PROJECT_NAME}
-)
+        ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
+        )
+add_executable( stereo_vo_node src/stereo_vo.cpp)
+target_link_libraries( stereo_vo_node
+        ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
+        ${OpenCV_LIBS}
+        )
+add_executable( stereo_cali_node src/stereo_cali.cpp)
+target_link_libraries( stereo_cali_node
+        ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
+        ${OpenCV_LIBS}
+        )

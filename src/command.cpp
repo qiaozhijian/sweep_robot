@@ -66,7 +66,6 @@ void Analyse(vector<uint8> frame) {
                 myData.allSensorEnable = true;
             break;
         case 0x0301:
-
             uint8_t shiftMask = 1;
             uint8_t shiftData = 0;
             if(BIT_7(body[0]))
@@ -147,7 +146,7 @@ void Analyse(vector<uint8> frame) {
                 shiftData = shiftData + 2;
                 myData.odometer_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
                 shiftData = shiftData + 2;
-                myData.odometer_theta = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.odometer_theta = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 10000.f;
                 shiftData = shiftData + 2;
             }
             myData.chassisTime = CAT32(body[shiftMask + shiftData], body[shiftMask + shiftData + 1],body[shiftMask + shiftData + 2], body[shiftMask + shiftData + 3]);
@@ -184,7 +183,7 @@ void HandleUART(vector<uint8> data) {
                 Analyse(curFrame);
             }
             //else
-                //ROS_INFO("fail");
+            //    ROS_INFO("fail");
         }
 
         if (reading)
@@ -285,7 +284,8 @@ void AskReportRegularly() {
     data.cnt = SWOP(myData.cnt);
     data.id = SWOP(0x0206);
     //0x78 11111000
-    data.bitmask0 = 0xf8;
+    //data.bitmask0 = 0xf8;
+    data.bitmask0 = 0xf9;
     data.bitmask1 = 0x01;
     data.TOF = 0x00;
     data.Cur = 0x00;

@@ -55,7 +55,7 @@ int32_t createDirectory(const std::string &directoryPath) {
 VideoCapture cap;
 int width = 1280;
 int height = 480;
-int FPS = 10;
+int FPS = 50;
 string dir;
 
 void createDir()
@@ -85,7 +85,7 @@ void InitCap()
     }
 }
 
-bool saveImages = false;
+bool saveImages = true;
 //
 int main(int argc, char **argv)            //程序主函数
 {
@@ -93,7 +93,7 @@ int main(int argc, char **argv)            //程序主函数
     ros::NodeHandle nh;
     image_transport::ImageTransport it(nh);
     //在camera/image话题上发布图像，这里第一个参数是话题的名称，第二个是缓冲区的大小
-    image_transport::Publisher pub = it.advertise("camera/stereo", 1);
+    image_transport::Publisher pub = it.advertise("robot_stereo", 50);
     ROS_INFO("stereo_vo_node init.");
 
     InitCap();
@@ -126,6 +126,8 @@ int main(int argc, char **argv)            //程序主函数
                 ROS_INFO("save %d",count);
             }
             sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
+            msg->header.stamp = ros::Time::now();
+            msg->header.frame_id = "robot";
             pub.publish(msg);
         } else
         {

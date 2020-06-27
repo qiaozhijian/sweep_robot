@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(myserial)
+project(sweepRobot)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
@@ -51,17 +51,18 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  $(Eigen_INCLUDE_DIRS)
 )
-set(myserial_srclib
+set(sweepRobot_srclib
         src/crc.cpp
         src/command.cpp
         )
 
-add_library(${PROJECT_NAME} ${myserial_srclib} )
+add_library(${PROJECT_NAME} ${sweepRobot_srclib} )
 
 
-add_executable( myserialnode src/main.cpp)
-target_link_libraries( myserialnode
+add_executable( sweepRobotnode src/main.cpp)
+target_link_libraries( sweepRobotnode
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}
         )

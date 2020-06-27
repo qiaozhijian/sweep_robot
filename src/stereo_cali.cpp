@@ -55,9 +55,9 @@ using namespace cv;
 int main(int argc, const char **argv)            //程序主函数
 {
     VideoCapture cap;
-    int width = 2560;
-    int height = 720;
-    int FPS = 50;
+    int width = 1280;
+    int height = 480;
+    int FPS = 10;
     cap.open(2);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
     //--------------------------------------------------------------------------------------
     cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));//视频流格式

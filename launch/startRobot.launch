@@ -9,6 +9,6 @@
     <node pkg="sweepRobot" type="keyboard_node"    name="ssdfds"    output="screen"/>
     <node pkg="sweepRobot" type="stereo_vo_node"    name="dwada"    output="screen"/>
 
-    <node pkg="rosbag" type="record" name="bag_record" args="/robot_imu /robot_stereo"/>
+    <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw"/>
 
 </launch>

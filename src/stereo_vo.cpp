@@ -1,14 +1,4 @@
-#include<iostream>
-#include<string>
-#include<sstream>
-#include<opencv2/core.hpp>
-#include<opencv2/highgui.hpp>
-#include<opencv2/videoio.hpp>
-#include<opencv2/opencv.hpp>
-#include<stdio.h>
 #include "global.h"
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
 
 #ifdef WIN32
 #include <io.h>
@@ -58,19 +48,17 @@ int height = 480;
 int FPS = 50;
 string dir;
 
-void createDir()
-{
-    time_t now_time=time(NULL);
-    tm*  t_tm = localtime(&now_time);
+void createDir() {
+    time_t now_time = time(NULL);
+    tm *t_tm = localtime(&now_time);
     //转换为年月日星期时分秒结果，如图：
-    string timeDetail =asctime(t_tm);
-    dir = "./dataset/"+timeDetail+"img/";
+    string timeDetail = asctime(t_tm);
+    dir = "./dataset/" + timeDetail + "img/";
     createDirectory(dir + "right/");
     createDirectory(dir + "left/");
 }
 
-void InitCap()
-{
+void InitCap() {
     cap.open(2);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
     //--------------------------------------------------------------------------------------
     cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));//视频流格式
@@ -86,6 +74,7 @@ void InitCap()
 }
 
 bool saveImages = true;
+
 //
 int main(int argc, char **argv)            //程序主函数
 {
@@ -93,7 +82,8 @@ int main(int argc, char **argv)            //程序主函数
     ros::NodeHandle nh;
     image_transport::ImageTransport it(nh);
     //在camera/image话题上发布图像，这里第一个参数是话题的名称，第二个是缓冲区的大小
-    image_transport::Publisher pub = it.advertise("robot_stereo", 50);
+    image_transport::Publisher pub0 = it.advertise("/cam0/image_raw", 50);
+    image_transport::Publisher pub1 = it.advertise("/cam1/image_raw", 50);
     ROS_INFO("stereo_vo_node init.");
 
     InitCap();
@@ -107,30 +97,31 @@ int main(int argc, char **argv)            //程序主函数
     ros::Rate loop_rate(200);
     while (ros::ok()) {
         //好像固定50 fps
-        if(cap.read(frame))
-        {
-            if(saveImages)
-            {
-                frame_L = frame(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
-                namedWindow("Video_L", 1);
-                imshow("Video_L", frame_L);
+        if (cap.read(frame)) {
 
-                frame_R = frame(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
-                namedWindow("Video_R", 1);
-                imshow("Video_R", frame_R);
+            frame_L = frame(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
+            //namedWindow("Video_L", 1);
+            //imshow("Video_L", frame_L);
 
-                sprintf(image_idx, "%06d.jpg", count);
-                imwrite(dir + "left/" + image_idx, frame_L);
-                imwrite(dir + "right/" + image_idx, frame_R);
-                count++;
-                ROS_INFO("save %d",count);
-            }
-            sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
-            msg->header.stamp = ros::Time::now();
-            msg->header.frame_id = "robot";
-            pub.publish(msg);
-        } else
-        {
+            frame_R = frame(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
+            //namedWindow("Video_R", 1);
+            //imshow("Video_R", frame_R);
+
+            sprintf(image_idx, "%06d.jpg", count);
+            imwrite(dir + "left/" + image_idx, frame_L);
+            imwrite(dir + "right/" + image_idx, frame_R);
+            count++;
+            ROS_INFO("save %d", count);
+
+            sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame_L).toImageMsg();
+            msg0->header.stamp = ros::Time::now();
+            msg0->header.frame_id = "sweep";
+            pub0.publish(msg0);
+            sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame_R).toImageMsg();
+            msg1->header.stamp = ros::Time::now();
+            msg1->header.frame_id = "sweep";
+            pub1.publish(msg1);
+        } else {
             ROS_INFO("fail");
         }
         //waitKey(0);

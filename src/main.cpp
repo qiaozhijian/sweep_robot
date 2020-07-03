@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "sweepRobotnode");
     ros::NodeHandle n;
     ros::Subscriber command_key = n.subscribe("keyboard", 10, callback);
-    ros::Publisher IMU_pub = n.advertise<sensor_msgs::Imu>("robot_imu", 1000);
+    ros::Publisher IMU_pub = n.advertise<sensor_msgs::Imu>("/imu0", 1000);
     ROS_INFO("sweepRobotnode init.");
     //return 0;
     try {
@@ -169,9 +169,9 @@ int main(int argc, char **argv) {
             imu_data.linear_acceleration.y = myData.accel_y;
             imu_data.linear_acceleration.z = myData.accel_z;
             //角速度
-            imu_data.angular_velocity.x = myData.accel_x;
-            imu_data.angular_velocity.y = myData.accel_y;
-            imu_data.angular_velocity.z = myData.accel_z;
+            imu_data.angular_velocity.x = myData.gyro_x;
+            imu_data.angular_velocity.y = myData.gyro_y;
+            imu_data.angular_velocity.z = myData.gyro_z;
 
             imu_data.angular_velocity_covariance[0] = myData.odometer_x;
             imu_data.angular_velocity_covariance[1] = myData.odometer_y;

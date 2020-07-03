@@ -83,3 +83,10 @@ target_link_libraries( stereo_cali_node
         ${PROJECT_NAME}
         ${OpenCV_LIBS}
         )
+
+add_executable( odometer_node src/odometer.cpp)
+target_link_libraries( odometer_node
+        ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
+        ${OpenCV_LIBS}
+        )

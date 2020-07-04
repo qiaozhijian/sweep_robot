@@ -108,8 +108,8 @@ int main(int argc, char **argv)            //程序主函数
             //imshow("Video_R", frame_R);
 
             sprintf(image_idx, "%06d.jpg", count);
-            imwrite(dir + "left/" + image_idx, frame_L);
-            imwrite(dir + "right/" + image_idx, frame_R);
+            //imwrite(dir + "left/" + image_idx, frame_L);
+            //imwrite(dir + "right/" + image_idx, frame_R);
             count++;
             //ROS_INFO("save %d", count);
 

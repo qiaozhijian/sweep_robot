@@ -168,10 +168,10 @@ int main(int argc, char **argv) {
             //orientation.setEulerZYX(myData.yaw,myData.pitch,myData.roll);
 
 
-            imu_data.orientation.x = quaternion.x();
-            imu_data.orientation.y = quaternion.y();
-            imu_data.orientation.z = quaternion.z();
-            imu_data.orientation.w = quaternion.w();
+            //imu_data.orientation.x = quaternion.x();
+            //imu_data.orientation.y = quaternion.y();
+            //imu_data.orientation.z = quaternion.z();
+            //imu_data.orientation.w = quaternion.w();
             //线加速度
             imu_data.linear_acceleration.x = myData.accel_x;
             imu_data.linear_acceleration.y = myData.accel_y;
@@ -181,12 +181,12 @@ int main(int argc, char **argv) {
             imu_data.angular_velocity.y = myData.gyro_y;
             imu_data.angular_velocity.z = myData.gyro_z;
 
-            imu_data.angular_velocity_covariance[0] = myData.odometer_x;
-            imu_data.angular_velocity_covariance[1] = myData.odometer_y;
-            imu_data.angular_velocity_covariance[2] = myData.odometer_theta;
-            imu_data.angular_velocity_covariance[3] = myData.tof;
-            imu_data.angular_velocity_covariance[4] = float(myData.pulseLeft);
-            imu_data.angular_velocity_covariance[5] = float(myData.pulseRight);
+            //imu_data.angular_velocity_covariance[0] = myData.odometer_x;
+            //imu_data.angular_velocity_covariance[1] = myData.odometer_y;
+            //imu_data.angular_velocity_covariance[2] = myData.odometer_theta;
+            //imu_data.angular_velocity_covariance[3] = myData.tof;
+            //imu_data.angular_velocity_covariance[4] = float(myData.pulseLeft);
+            //imu_data.angular_velocity_covariance[5] = float(myData.pulseRight);
 
             IMU_pub.publish(imu_data);
 
@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
             if(timeLast!=0.0)
             {
                 yaw_ = yaw_ + (time-timeLast)*myData.gyro_z;
-                ROS_INFO("yaw %f; yaw %f; odometer_theta: %f; euler_yaw: %f",yaw_, yaw_/3.1415926*180.0, myData.odometer_theta/3.1415926*180.0, myData.yaw/3.1415926*180.0);
+                //ROS_INFO("yaw %f; yaw %f; odometer_theta: %f; euler_yaw: %f",yaw_, yaw_/3.1415926*180.0, myData.odometer_theta/3.1415926*180.0, myData.yaw/3.1415926*180.0);
             }
             timeLast = time;
             //ROS_INFO("Time: %fs; euler: %f, %f, %f; ordinate(x,y,theta): %f, %f, %f.",\

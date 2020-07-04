@@ -6,6 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Image1
+        - /Image1/Status1
+        - /Path1
       Splitter Ratio: 0.5
     Tree Height: 270
   - Class: rviz/Selection
@@ -50,7 +53,7 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: false
+      Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
@@ -68,7 +71,7 @@ Visualization Manager:
       Shaft Length: 0.10000000149011612
       Topic: /trajectory
       Unreliable: false
-      Value: false
+      Value: true
     - Class: rviz/Image
       Enabled: true
       Image Topic: /cam1/image_raw
@@ -109,7 +112,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.581123352050781
+      Distance: 1.486833930015564
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -124,10 +127,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.449796438217163
+      Pitch: 0.2147969901561737
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.4554030895233154
+      Yaw: 3.815377950668335
     Saved: ~
 Window Geometry:
   Displays:
@@ -147,5 +150,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1687
-  X: 233
-  Y: 27
+  X: 546
+  Y: 191

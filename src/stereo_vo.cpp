@@ -111,7 +111,7 @@ int main(int argc, char **argv)            //程序主函数
             imwrite(dir + "left/" + image_idx, frame_L);
             imwrite(dir + "right/" + image_idx, frame_R);
             count++;
-            ROS_INFO("save %d", count);
+            //ROS_INFO("save %d", count);
 
             sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame_L).toImageMsg();
             msg0->header.stamp = ros::Time::now();

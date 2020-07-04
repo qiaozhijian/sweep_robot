@@ -4,10 +4,13 @@
  */
 #include "global.h"
 #include "command.h"
+#include "myRobot.h"
+#include <serial/serial.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_datatypes.h>
 
 
-serial::Serial ros_ser;
-extern SerialData myData;
+extern MyRobot myData;
 void callback(const std_msgs::Int32 ::ConstPtr &msg) {
     switch (msg->data)
     {
@@ -134,6 +137,8 @@ int main(int argc, char **argv) {
     }
 
 
+    double timeLast = 0.0;
+    double yaw_ = 0.0;
     while (ros::ok())
     {
         if(ros_ser.available())
@@ -159,6 +164,9 @@ int main(int argc, char **argv) {
             Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(eulerAngle(1),Eigen::Vector3d::UnitY()));
             Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(eulerAngle(0),Eigen::Vector3d::UnitZ()));
             Eigen::Quaterniond quaternion=yawAngle*pitchAngle*rollAngle;
+            //tf::Quaternion orientation;
+            //orientation.setEulerZYX(myData.yaw,myData.pitch,myData.roll);
+
 
             imu_data.orientation.x = quaternion.x();
             imu_data.orientation.y = quaternion.y();
@@ -183,8 +191,14 @@ int main(int argc, char **argv) {
             IMU_pub.publish(imu_data);
 
             //ROS_INFO("Time: %fs; Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f; Pulse(left,right): %d, %d.",\
-            myData.chassisTime/1000.f, myData.gyro_x, myData.gyro_y, myData.gyro_z, myData.accel_x, myData.accel_y, myData.accel_z, myData.pulseLeft, myData.pulseRight);
-
+            //myData.chassisTime/1000.f, myData.gyro_x, myData.gyro_y, myData.gyro_z, myData.accel_x, myData.accel_y, myData.accel_z, myData.pulseLeft, myData.pulseRight);
+            double time = ros::Time().now().toSec();
+            if(timeLast!=0.0)
+            {
+                yaw_ = yaw_ + (time-timeLast)*myData.gyro_z;
+                ROS_INFO("yaw %f; yaw %f; odometer_theta: %f; euler_yaw: %f",yaw_, yaw_/3.1415926*180.0, myData.odometer_theta/3.1415926*180.0, myData.yaw/3.1415926*180.0);
+            }
+            timeLast = time;
             //ROS_INFO("Time: %fs; euler: %f, %f, %f; ordinate(x,y,theta): %f, %f, %f.",\
             myData.chassisTime/1000.f, myData.yaw, myData.pitch, myData.roll, myData.odometer_x, myData.odometer_y, myData.odometer_theta);
         }

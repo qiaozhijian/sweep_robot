@@ -6,32 +6,31 @@
 #define SRC_GLOBAL_H
 
 #include "ros/ros.h"
-#include <serial/serial.h>
-#include "crc.h"
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
 #include "nav_msgs/Path.h"
+#include <sensor_msgs/Imu.h>
+#include "geometry_msgs/PoseStamped.h"
 #include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
-#include <sensor_msgs/Imu.h>
+#include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt8.h"
 #include "std_msgs/UInt8MultiArray.h"
 #include "std_msgs/Int32.h"
-#include "geometry_msgs/PoseStamped.h"
-#include "std_msgs/Float32MultiArray.h"
 #include <typeinfo>
-#include<time.h>
+#include <time.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include<iostream>
 #include<string>
 #include<sstream>
+#include<stdio.h>
 #include<opencv2/core.hpp>
 #include<opencv2/highgui.hpp>
 #include<opencv2/videoio.hpp>
 #include<opencv2/opencv.hpp>
-#include<stdio.h>
-#include "global.h"
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
 
 using namespace std;
 

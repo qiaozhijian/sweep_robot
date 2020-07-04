@@ -56,10 +56,11 @@ include_directories(
 set(sweepRobot_srclib
         src/crc.cpp
         src/command.cpp
+        src/myRobot.cpp
         )
 
 add_library(${PROJECT_NAME} ${sweepRobot_srclib} )
-
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
 add_executable( sweepRobotnode src/main.cpp)
 target_link_libraries( sweepRobotnode
@@ -74,19 +75,19 @@ target_link_libraries( keyboard_node
 add_executable( stereo_vo_node src/stereo_vo.cpp)
 target_link_libraries( stereo_vo_node
         ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
         ${OpenCV_LIBS}
+        ${PROJECT_NAME}
         )
 add_executable( stereo_cali_node src/stereo_cali.cpp)
 target_link_libraries( stereo_cali_node
         ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
         ${OpenCV_LIBS}
+        ${PROJECT_NAME}
         )
 
 add_executable( odometer_node src/odometer.cpp)
 target_link_libraries( odometer_node
         ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
         ${OpenCV_LIBS}
+        ${PROJECT_NAME}
         )

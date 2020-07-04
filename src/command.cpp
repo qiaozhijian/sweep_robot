@@ -3,9 +3,11 @@
 //
 
 #include "command.h"
+#include "myRobot.h"
+#include "crc.h"
 
-extern serial::Serial ros_ser;
-SerialData myData;
+serial::Serial ros_ser;
+MyRobot myData;
 
 uint16 CRC16_CCITT_FALSE(uint8 *puchMsg, unsigned int usDataLen) {
     uint16 wCRCin = 0xFFFF; //初始值为 0xFFFF
@@ -74,7 +76,7 @@ void Analyse(vector<uint8> frame) {
             if(BIT_0(body[0]))
             {
                 //ROS_INFO("read tof");
-                myData.tof = body[shiftMask + shiftData] / 1000.f;
+                myData.tof = body[shiftMask + shiftData] / 1000.0;
                 shiftData = shiftData + 1;
             }
             //电流数据存在
@@ -105,28 +107,28 @@ void Analyse(vector<uint8> frame) {
             if(BIT_3(body[0]))
             {
                 //ROS_INFO("read IMU");
-                myData.accel_x = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.accel_x = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.accel_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.accel_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.accel_z = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.accel_z = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.gyro_x = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.gyro_x = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.gyro_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.gyro_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.gyro_z = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.gyro_z = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
             }
             //姿态数据存在
             if(BIT_4(body[0]))
             {
                 //ROS_INFO("read posture");
-                myData.pitch = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 100.f;
+                myData.pitch = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 100.0;
                 shiftData = shiftData + 2;
-                myData.roll = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 100.f;
+                myData.roll = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 100.0;
                 shiftData = shiftData + 2;
-                myData.yaw = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 100.f;
+                myData.yaw = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 100.0;
                 shiftData = shiftData + 2;
             }
             //轮子脉冲数据存在
@@ -142,11 +144,11 @@ void Analyse(vector<uint8> frame) {
             if(BIT_6(body[0]))
             {
                 //ROS_INFO("read dometer");
-                myData.odometer_x = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.odometer_x = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.odometer_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.f;
+                myData.odometer_y = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 1000.0;
                 shiftData = shiftData + 2;
-                myData.odometer_theta = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 10000.f;
+                myData.odometer_theta = int16_t(CAT(body[shiftMask + shiftData], body[shiftMask + shiftData + 1])) / 10000.0;
                 shiftData = shiftData + 2;
             }
             myData.chassisTime = CAT32(body[shiftMask + shiftData], body[shiftMask + shiftData + 1],body[shiftMask + shiftData + 2], body[shiftMask + shiftData + 3]);
@@ -252,8 +254,8 @@ void InfoReceive(uint16_t id) {
 }
 
 void Move(float vel_ms, float w_rads) {
-    int16_t vel = int16_t(vel_ms * 1000.f);
-    int16_t w = int16_t(w_rads * 1000.f);
+    int16_t vel = int16_t(vel_ms * 1000.0);
+    int16_t w = int16_t(w_rads * 1000.0);
     UART_TYPE0C data = {0};
     data.startCode = SWOP(0xa5a5);
     data.len = SWOP(0x000c);

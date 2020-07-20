@@ -57,6 +57,8 @@ set(sweepRobot_srclib
         src/crc.cpp
         src/command.cpp
         src/myRobot.cpp
+        src/imagePro.cpp
+        src/control.cpp
         )
 
 add_library(${PROJECT_NAME} ${sweepRobot_srclib} )
@@ -91,3 +93,12 @@ target_link_libraries( odometer_node
         ${OpenCV_LIBS}
         ${PROJECT_NAME}
         )
+
+
+add_executable( modifyROSbag_node src/modifyROSbag.cpp)
+target_link_libraries( modifyROSbag_node
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBS}
+        ${PROJECT_NAME}
+        )
+

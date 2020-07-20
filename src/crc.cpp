@@ -66,44 +66,39 @@ CRC::CRC(void) //构造函数,不能带返回值
 {
 
 }
+
 CRC::~CRC(void) //构造函数,不能带返回值
 {
 
 }
 
-void CRC::sayHello(void)
-{
+void CRC::sayHello(void) {
     ROS_INFO_STREAM("HELLO........................... ");
 }
 
-uint8_t CRC::sum(uint8_t *buf,uint8_t i,uint8_t number)
-{
-    uint8_t  sum1;
-    uint8_t  p;
+uint8_t CRC::sum(uint8_t *buf, uint8_t i, uint8_t number) {
+    uint8_t sum1;
+    uint8_t p;
     //sum1=buf[i];
-    for(p=0; p<number; p++)
-    {
-        sum1+=buf[i+p];
+    for (p = 0; p < number; p++) {
+        sum1 += buf[i + p];
     }
-    sum1=~sum1;
+    sum1 = ~sum1;
     return sum1;
 }
 
 
-
-unsigned int CRC::CRC16(unsigned char* pchMsg, unsigned int wDataLen)
-{
+unsigned int CRC::CRC16(unsigned char *pchMsg, unsigned int wDataLen) {
     unsigned int chCRCHi = 0xFF; // 高CRC字节初始化
     unsigned int chCRCLo = 0xFF; // 低CRC字节初始化
     unsigned long int wIndex;            // CRC循环中的索引
 
-    while (wDataLen--)
-    {
+    while (wDataLen--) {
         // 计算CRC
-        wIndex = chCRCLo ^ *pchMsg++ ;
+        wIndex = chCRCLo ^ *pchMsg++;
         chCRCLo = chCRCHi ^ chCRCHTalbe[wIndex];
-        chCRCHi = chCRCLTalbe[wIndex] ;
+        chCRCHi = chCRCLTalbe[wIndex];
     }
 
-    return ((chCRCHi << 8) | chCRCLo) ;
+    return ((chCRCHi << 8) | chCRCLo);
 }

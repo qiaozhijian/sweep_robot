@@ -1,0 +1,11 @@
+<launch>
+    <!--- Sim Time -->
+    <param name="/use_sim_time" value="false" />
+
+    <node name="sweepRobotnode" pkg="sweepRobot" type="sweepRobotnode" output="screen">
+        <param name="RECORD_IMU" type="string" value="1" />
+    </node>
+
+    <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw"/>
+
+</launch>

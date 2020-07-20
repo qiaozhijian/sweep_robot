@@ -11,36 +11,32 @@
 #include <io.h>
 #include <direct.h>
 #else
+
 #include <unistd.h>
 #include <sys/stat.h>
+
 #endif
 #define MAX_PATH_LEN 256
 #ifdef WIN32
 #define ACCESS(fileName,accessMode) _access(fileName,accessMode)
 #define MKDIR(path) _mkdir(path)
 #else
-#define ACCESS(fileName,accessMode) access(fileName,accessMode)
+#define ACCESS(fileName, accessMode) access(fileName,accessMode)
 #define MKDIR(path) mkdir(path,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
 #endif
 
-int32_t createDirectory(const std::string &directoryPath)
-{
+int32_t createDirectory(const std::string &directoryPath) {
     uint32_t dirPathLen = directoryPath.length();
-    if (dirPathLen > MAX_PATH_LEN)
-    {
+    if (dirPathLen > MAX_PATH_LEN) {
         return 1;
     }
-    char tmpDirPath[MAX_PATH_LEN] = { 0 };
-    for (uint32_t i = 0; i < dirPathLen; ++i)
-    {
+    char tmpDirPath[MAX_PATH_LEN] = {0};
+    for (uint32_t i = 0; i < dirPathLen; ++i) {
         tmpDirPath[i] = directoryPath[i];
-        if (tmpDirPath[i] == '\\' || tmpDirPath[i] == '/')
-        {
-            if (ACCESS(tmpDirPath, 0) != 0)
-            {
+        if (tmpDirPath[i] == '\\' || tmpDirPath[i] == '/') {
+            if (ACCESS(tmpDirPath, 0) != 0) {
                 int32_t ret = MKDIR(tmpDirPath);
-                if (ret != 0)
-                {
+                if (ret != 0) {
                     return ret;
                 }
             }
@@ -51,6 +47,7 @@ int32_t createDirectory(const std::string &directoryPath)
 
 using namespace std;
 using namespace cv;
+
 //
 int main(int argc, const char **argv)            //程序主函数
 {
@@ -90,11 +87,11 @@ int main(int argc, const char **argv)            //程序主函数
         cap >> frame;                            //从相机捕获一帧图像
         resize(frame, imagedst, dsize);          //对捕捉的图像进行缩放操作
 
-        frame_L = imagedst(Rect(0, 0, dsize.width/2, dsize.height));  //获取缩放后左Camera的图像
+        frame_L = imagedst(Rect(0, 0, dsize.width / 2, dsize.height));  //获取缩放后左Camera的图像
         namedWindow("Video_L", 1);
         imshow("Video_L", frame_L);
 
-        frame_R = imagedst(Rect(dsize.width/2, 0, dsize.width/2, dsize.height)); //获取缩放后右Camera的图像
+        frame_R = imagedst(Rect(dsize.width / 2, 0, dsize.width / 2, dsize.height)); //获取缩放后右Camera的图像
         namedWindow("Video_R", 1);
         imshow("Video_R", frame_R);
 
@@ -108,7 +105,7 @@ int main(int argc, const char **argv)            //程序主函数
             sprintf(image_right, "./img/right/%06d.jpg", count);
             imwrite(image_right, frame_R);
             count++;
-            cout<<"save "<<count<<endl;
+            cout << "save " << count << endl;
         }
         key = waitKey(1);
     }

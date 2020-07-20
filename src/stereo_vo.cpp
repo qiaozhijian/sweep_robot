@@ -45,14 +45,16 @@ int32_t createDirectory(const std::string &directoryPath) {
 VideoCapture cap;
 int width = 1280;
 int height = 480;
+//最快50Hz，再往上也不行了
 int FPS = 50;
 string dir;
 
 void createDir() {
     time_t now_time = time(NULL);
-    tm *t_tm = localtime(&now_time);
+    tm *T_tm = localtime(&now_time);
     //转换为年月日星期时分秒结果，如图：
-    string timeDetail = asctime(t_tm);
+    string timeDetail = asctime(T_tm);
+    timeDetail.pop_back();
     dir = "./dataset/" + timeDetail + "img/";
     createDirectory(dir + "right/");
     createDirectory(dir + "left/");
@@ -73,7 +75,9 @@ void InitCap() {
     }
 }
 
-bool saveImages = true;
+bool saveImages = false;
+bool showImages = false;
+bool remapImage = false;
 
 //
 int main(int argc, char **argv)            //程序主函数
@@ -87,46 +91,126 @@ int main(int argc, char **argv)            //程序主函数
     ROS_INFO("stereo_vo_node init.");
 
     InitCap();
-    createDir();
+    if (saveImages)
+        createDir();
 
     Mat frame = Mat::zeros(Size(width, height), CV_8UC3);
+    Mat frameGrey = Mat::zeros(Size(width, height), CV_8UC1);
     Mat frame_L, frame_R;
     char image_idx[200];
     int count = 0;
+    bool cameraFail = false;
 
+    string strwriting = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/cali/result/robot_orb_stereo.yaml";
+    cv::FileStorage fsSettings(strwriting.c_str(), cv::FileStorage::READ);
+
+    if (!fsSettings.isOpened()) {
+        cerr << "ERROR: Wrong path to settings" << endl;
+        return -1;
+    }
+
+    cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
+    fsSettings["LEFT.K"] >> K_l;
+    fsSettings["RIGHT.K"] >> K_r;
+
+    fsSettings["LEFT.P"] >> P_l;
+    fsSettings["RIGHT.P"] >> P_r;
+
+    fsSettings["LEFT.R"] >> R_l;
+    fsSettings["RIGHT.R"] >> R_r;
+
+    fsSettings["LEFT.D"] >> D_l;
+    fsSettings["RIGHT.D"] >> D_r;
+
+    int rows_l = fsSettings["LEFT.height"];
+    int cols_l = fsSettings["LEFT.width"];
+    int rows_r = fsSettings["RIGHT.height"];
+    int cols_r = fsSettings["RIGHT.width"];
+
+    if (K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() ||
+        D_r.empty() ||
+        rows_l == 0 || rows_r == 0 || cols_l == 0 || cols_r == 0) {
+        cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
+        return -1;
+    }
+
+    cv::Mat M1l, M2l, M1r, M2r;
+    cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l.rowRange(0, 3).colRange(0, 3), cv::Size(cols_l, rows_l), CV_32F, M1l,
+                                M2l);
+    cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r.rowRange(0, 3).colRange(0, 3), cv::Size(cols_r, rows_r), CV_32F, M1r,
+                                M2r);
+
+    cv::Mat imLeft, imRight, imLeftRect, imRightRect;
+    if (showImages) {
+        namedWindow("Video_L");
+        namedWindow("Video_R");
+    }
     ros::Rate loop_rate(200);
+    double tStart = ros::Time::now().toSec();
+    double tNow = ros::Time::now().toSec();
+    ros::Time tImage = ros::Time::now();
+    double internal = 1.0 / 11.0;
+    bool first = true;
     while (ros::ok()) {
         //好像固定50 fps
         if (cap.read(frame)) {
+            tImage = ros::Time::now();
+            //    变成灰度图
+            if (frame.channels() == 3) {
+                cvtColor(frame, frameGrey, CV_BGR2GRAY);
+            } else if (frame.channels() == 4) {
+                cvtColor(frame, frameGrey, CV_BGRA2GRAY);
+            }
 
-            frame_L = frame(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
-            //namedWindow("Video_L", 1);
-            //imshow("Video_L", frame_L);
+            frame_L = frameGrey(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
+            frame_R = frameGrey(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
 
-            frame_R = frame(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
-            //namedWindow("Video_R", 1);
-            //imshow("Video_R", frame_R);
+            if (remapImage) {
+                cv::remap(frame_L, imLeftRect, M1l, M2l, cv::INTER_LINEAR);
+                cv::remap(frame_R, imRightRect, M1r, M2r, cv::INTER_LINEAR);
+            } else {
+                imLeftRect = frame_L;
+                imRightRect = frame_R;
+            }
 
-            sprintf(image_idx, "%06d.jpg", count);
-            //imwrite(dir + "left/" + image_idx, frame_L);
-            //imwrite(dir + "right/" + image_idx, frame_R);
-            count++;
-            //ROS_INFO("save %d", count);
+            //就按最大频率吧，内存大一点就大一点，但运动模糊的可以去除
+            //tNow = ros::Time::now().toSec();
+            //if(tNow-tStart>internal || first)
+            {
+                first = false;
+                tStart = tNow;
+                sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), "mono8", imLeftRect).toImageMsg();
+                sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), "mono8", imRightRect).toImageMsg();
+                msg0->header.stamp = tImage;
+                msg0->header.frame_id = "sweep";
+                msg1->header.stamp = tImage;
+                msg1->header.frame_id = "sweep";
+                pub0.publish(msg0);
+                pub1.publish(msg1);
+            }
 
-            sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame_L).toImageMsg();
-            msg0->header.stamp = ros::Time::now();
-            msg0->header.frame_id = "sweep";
-            pub0.publish(msg0);
-            sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame_R).toImageMsg();
-            msg1->header.stamp = ros::Time::now();
-            msg1->header.frame_id = "sweep";
-            pub1.publish(msg1);
+            if (saveImages) {
+                sprintf(image_idx, "%06d.jpg", count);
+                imwrite(dir + "left/" + image_idx, imLeftRect);
+                imwrite(dir + "right/" + image_idx, imRightRect);
+                count++;
+                ROS_INFO("save %d", count);
+            }
+
+            if (showImages) {
+                imshow("Video_R", imLeftRect);
+                imshow("Video_L", imRightRect);
+                waitKey(3);
+            }
         } else {
-            ROS_INFO("fail");
+            if (!cameraFail) {
+                ROS_INFO("fail");
+                cameraFail = true;
+            }
         }
         //waitKey(0);
         ros::spinOnce();
-        loop_rate.sleep();
+        //loop_rate.sleep();
     }
 
     return 0;

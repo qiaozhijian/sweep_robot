@@ -33,6 +33,7 @@
 #include<opencv2/opencv.hpp>
 
 using namespace std;
+using namespace cv;
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
@@ -125,7 +126,7 @@ namespace global
 
 #define SWOP(n) (((n & 0x00FF) << 8 ) | ((n & 0xFF00) >> 8))
 #define CAT(a,b) (((a & 0x00FF) << 8 ) | (b & 0x00FF))
-#define CAT32(a,b,c,d) (((a & 0x000000FF) << 24) | ((b & 0x000000FF) << 16) | ((b & 0x000000FF) << 8) | ((b & 0x000000FF) << 0))
+#define CAT32(a,b,c,d) (((a & 0x000000FF) << 24) | ((b & 0x000000FF) << 16) | ((c & 0x000000FF) << 8) | ((d & 0x000000FF) << 0))
 #define foo(arr) (sizeof(arr)/sizeof(arr[0]))
 
 

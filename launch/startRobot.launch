@@ -6,9 +6,12 @@
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find sweepRobot)/launch/my.rviz" />
 
     <node pkg="sweepRobot" type="sweepRobotnode"    name="ddsdfs"    output="screen"/>
-    <node pkg="sweepRobot" type="keyboard_node"    name="ssdfds"    output="screen"/>
+<!--     <node pkg="sweepRobot" type="keyboard_node"    name="ssdfds"    output="screen"/> -->
     <node pkg="sweepRobot" type="stereo_vo_node"    name="dwada"    output="screen"/>
 
     <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw"/>
+<!--     <node pkg="rosbag" type="record" name="bag_record" args=" -duration=121m /imu0 "/> -->
 
 </launch>
+
+<!-- 1594568361.324152 1594568419.974837 时间戳，零漂，标定（调参），运动方式，图片模糊，标定板正倒, 根据实际情况进行修整,加速度计-->

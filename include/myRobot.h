@@ -8,6 +8,12 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#define IMU_TOPIC 0
+#define LEFT_TOPIC 1
+#define RIGHT_TOPIC 2
+
+//#define ROMOVE_BIAS
+
 class MyRobot{
 public:
     int cnt=0;
@@ -16,6 +22,10 @@ public:
     bool isAllOn = false;
     bool allSensorEnable = false;
     bool sendRegular = false;
+    bool imuUpdate = false;
+    bool cameraUpdate = true;
+    bool mWriteOdo;
+    bool mWriteBag;
     uint8_t moving = 0;
 
     double tof = 0;// 离墙距离 m
@@ -32,14 +42,17 @@ public:
     double gyro_x = 0.0; //弧度制
     double gyro_y = 0.0; //弧度制
     double gyro_z = 0.0; //弧度制
+    double w_x_self = 0.0; //弧度制
+    double w_y_self = 0.0; //弧度制
+    double w_z_self = 0.0; //弧度制
     double pitch = 0.0;
     double roll = 0.0;
-    double yaw = 0.0;
+    double yaw = 0.0;//角度制
     int16_t pulseLeft = 0;//左轮脉冲
     int16_t pulseRight = 0;//右轮脉冲
     double odometer_x = 0.0;
     double odometer_y = 0.0;
-    double odometer_theta = 0.0; //弧度制
+    double odometer_theta = 0.0; //弧度制，与yaw相反数，但因为弧度制和角度制计算误差，所以不完全一样
 
     string topic_imu,topic_camera0,topic_camera1;
     double img0Time,img1Time,imuTime,timeInit;
@@ -59,10 +72,15 @@ public:
     cv::Mat img1;
 
     void HandleRosbag(rosbag::MessageInstance m);
+    uint8 UndisImage(rosbag::MessageInstance m);
     int RosbagInit();
-    MyRobot(void);
+    MyRobot(bool writeOdo, bool writeBag);
 
     ofstream odometryFile;
+
+    sensor_msgs::Imu imu_data;
+    sensor_msgs::ImagePtr msg0;
+    sensor_msgs::ImagePtr msg1;
 
 private:
     int a,b,c;

@@ -7,7 +7,6 @@ using namespace std;
 using namespace cv;
 void SaveCameraTime(const string &filename, double time);
 
-extern MyRobot pmyData;
 
 VideoCapture cap;
 int width = 1280;
@@ -15,15 +14,15 @@ int height = 480;
 //最快50Hz，再往上也不行了
 int FPS = 50;
 
-void createDir() {
+void createDir(MyRobot* pmyData) {
     time_t now_time = time(NULL);
     tm *T_tm = localtime(&now_time);
     //转换为年月日星期时分秒结果，如图：
     string timeDetail = asctime(T_tm);
     timeDetail.pop_back();
-    pmyData.dir = "./dataset/" + timeDetail + "img/";
-    createDirectory(pmyData.dir + "right/");
-    createDirectory(pmyData.dir + "left/");
+    pmyData->dir = "./dataset/" + timeDetail + "img/";
+    createDirectory(pmyData->dir + "right/");
+    createDirectory(pmyData->dir + "left/");
 }
 
 void InitCap() {
@@ -54,11 +53,13 @@ int main(int argc, char **argv)            //程序主函数
     //在camera/image话题上发布图像，这里第一个参数是话题的名称，第二个是缓冲区的大小
     image_transport::Publisher pub0 = it.advertise("/cam0/image_raw", 50);
     image_transport::Publisher pub1 = it.advertise("/cam1/image_raw", 50);
+    ros::Publisher vo_pub = nh.advertise<std_msgs::String>("/vo_dir", 5);
     ROS_INFO("stereo_vo_node init.");
 
+    MyRobot* pmyData = getMyData();
     InitCap();
-    if (saveImages)
-        createDir();
+
+    createDir(pmyData);
 
     Mat frame = Mat::zeros(Size(width, height), CV_8UC3);
     Mat frameGrey = Mat::zeros(Size(width, height), CV_8UC1);
@@ -119,8 +120,14 @@ int main(int argc, char **argv)            //程序主函数
     bool first = true;
     vector<double > timeStamp;
     timeStamp.reserve(20000);
-    pmyData.cameraReady = true;
-    ROS_INFO("camera ready first");
+
+
+    std_msgs::String msg;
+    msg.data = pmyData->dir;
+    vo_pub.publish(msg);
+    ROS_INFO("vo ready!");
+
+
     while (ros::ok()) {
         //好像固定50 fps
         if (cap.read(frame)) {
@@ -162,12 +169,11 @@ int main(int argc, char **argv)            //程序主函数
 
             if (saveImages) {
                 sprintf(image_idx, "%06d.jpg", count);
-                SaveCameraTime(pmyData.dir + "cameraStamps.txt", tImage.toSec());
-                imwrite(pmyData.dir + "left/" + image_idx, imLeftRect);
-                imwrite(pmyData.dir + "right/" + image_idx, imRightRect);
+                SaveCameraTime(pmyData->dir + "cameraStamps.txt", tImage.toSec());
+                imwrite(pmyData->dir + "left/" + image_idx, imLeftRect);
+                imwrite(pmyData->dir + "right/" + image_idx, imRightRect);
                 count++;
-                if(pmyData.allReady)
-                    ROS_INFO("save %d", count);
+                ROS_INFO("save %d", count);
             }
 
             if (showImages) {

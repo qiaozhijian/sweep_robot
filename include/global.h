@@ -12,6 +12,7 @@
 #include <rosbag/view.h>
 #include "nav_msgs/Path.h"
 #include <sensor_msgs/Imu.h>
+#include "std_msgs/Bool.h"
 #include "geometry_msgs/PoseStamped.h"
 #include <std_msgs/String.h>
 #include <std_msgs/Empty.h>

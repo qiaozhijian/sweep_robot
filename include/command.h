@@ -6,6 +6,7 @@
 #define SRC_COMMAND_H
 #include "global.h"
 #include <serial/serial.h>
+#include "myRobot.h"
 
 extern serial::Serial ros_ser;
 
@@ -15,4 +16,5 @@ void TurnAllSwitch(uint8_t mode);
 void AskReportRegularly();
 void HandleUART(vector<uint8> data);
 void InfoReceive(uint16_t id);
+MyRobot* getMyData();
 #endif //SRC_COMMAND_H

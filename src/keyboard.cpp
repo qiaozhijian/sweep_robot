@@ -26,7 +26,7 @@ int scanKeyboard() {
 int main(int argc, char *argv[]) {
     ros::init(argc, argv, "keyboard_node");
     ros::NodeHandle n;
-    ros::Publisher keyboardAd = n.advertise<std_msgs::Int32>("keyboard", 10);
+    ros::Publisher keyboardAd = n.advertise<std_msgs::Int32>("/keyboard", 10);
     ros::Rate loop_rate(200);
     ROS_INFO("mykeyboardnode init.");
     while (ros::ok()) {

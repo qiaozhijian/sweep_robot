@@ -201,7 +201,7 @@ void MyRobot::SaveRobotData(const string &filename,double time)
     ofstream f;
     f.open(filename.c_str(), ios::out | ios::app);
     f << fixed;
-    f << setprecision(9) << time <<gyro_x << " " << gyro_y << " " << gyro_z << " " << accel_x << " " << accel_y << " " << accel_z << " " << odometer_x << " " << odometer_y << " " << odometer_theta << endl;
+    f << setprecision(9) << time <<" "<<gyro_x << " " << gyro_y << " " << gyro_z << " " << accel_x << " " << accel_y << " " << accel_z << " " << odometer_x << " " << odometer_y << " " << odometer_theta << endl;
     f.close();
 }
 

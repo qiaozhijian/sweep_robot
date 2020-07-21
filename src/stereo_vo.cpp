@@ -1,53 +1,19 @@
 #include "global.h"
-
-#ifdef WIN32
-#include <io.h>
-#include <direct.h>
-#else
-
-#include <unistd.h>
-#include <sys/stat.h>
-
-#endif
-#define MAX_PATH_LEN 256
-#ifdef WIN32
-#define ACCESS(fileName,accessMode) _access(fileName,accessMode)
-#define MKDIR(path) _mkdir(path)
-#else
-#define ACCESS(fileName, accessMode) access(fileName,accessMode)
-#define MKDIR(path) mkdir(path,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
-#endif
-
+#include "utility.h"
+#include "command.h"
+#include "myRobot.h"
 
 using namespace std;
 using namespace cv;
+void SaveCameraTime(const string &filename, double time);
 
-int32_t createDirectory(const std::string &directoryPath) {
-    uint32_t dirPathLen = directoryPath.length();
-    if (dirPathLen > MAX_PATH_LEN) {
-        return 1;
-    }
-    char tmpDirPath[MAX_PATH_LEN] = {0};
-    for (uint32_t i = 0; i < dirPathLen; ++i) {
-        tmpDirPath[i] = directoryPath[i];
-        if (tmpDirPath[i] == '\\' || tmpDirPath[i] == '/') {
-            if (ACCESS(tmpDirPath, 0) != 0) {
-                int32_t ret = MKDIR(tmpDirPath);
-                if (ret != 0) {
-                    return ret;
-                }
-            }
-        }
-    }
-    return 0;
-}
+extern MyRobot pmyData;
 
 VideoCapture cap;
 int width = 1280;
 int height = 480;
 //最快50Hz，再往上也不行了
 int FPS = 50;
-string dir;
 
 void createDir() {
     time_t now_time = time(NULL);
@@ -55,9 +21,9 @@ void createDir() {
     //转换为年月日星期时分秒结果，如图：
     string timeDetail = asctime(T_tm);
     timeDetail.pop_back();
-    dir = "./dataset/" + timeDetail + "img/";
-    createDirectory(dir + "right/");
-    createDirectory(dir + "left/");
+    pmyData.dir = "./dataset/" + timeDetail + "img/";
+    createDirectory(pmyData.dir + "right/");
+    createDirectory(pmyData.dir + "left/");
 }
 
 void InitCap() {
@@ -75,7 +41,7 @@ void InitCap() {
     }
 }
 
-bool saveImages = false;
+bool saveImages = true;
 bool showImages = false;
 bool remapImage = false;
 
@@ -151,6 +117,10 @@ int main(int argc, char **argv)            //程序主函数
     ros::Time tImage = ros::Time::now();
     double internal = 1.0 / 11.0;
     bool first = true;
+    vector<double > timeStamp;
+    timeStamp.reserve(20000);
+    pmyData.cameraReady = true;
+    ROS_INFO("camera ready first");
     while (ros::ok()) {
         //好像固定50 fps
         if (cap.read(frame)) {
@@ -185,16 +155,19 @@ int main(int argc, char **argv)            //程序主函数
                 msg0->header.frame_id = "sweep";
                 msg1->header.stamp = tImage;
                 msg1->header.frame_id = "sweep";
+
                 pub0.publish(msg0);
                 pub1.publish(msg1);
             }
 
             if (saveImages) {
                 sprintf(image_idx, "%06d.jpg", count);
-                imwrite(dir + "left/" + image_idx, imLeftRect);
-                imwrite(dir + "right/" + image_idx, imRightRect);
+                SaveCameraTime(pmyData.dir + "cameraStamps.txt", tImage.toSec());
+                imwrite(pmyData.dir + "left/" + image_idx, imLeftRect);
+                imwrite(pmyData.dir + "right/" + image_idx, imRightRect);
                 count++;
-                ROS_INFO("save %d", count);
+                if(pmyData.allReady)
+                    ROS_INFO("save %d", count);
             }
 
             if (showImages) {
@@ -214,4 +187,13 @@ int main(int argc, char **argv)            //程序主函数
     }
 
     return 0;
+}
+
+
+void SaveCameraTime(const string &filename, double time) {
+    ofstream f;
+    f.open(filename.c_str(), ios::out | ios::app);
+    f << fixed;
+        f << setprecision(9) << time  << endl;
+    f.close();
 }

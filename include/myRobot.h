@@ -23,9 +23,12 @@ public:
     bool allSensorEnable = false;
     bool sendRegular = false;
     bool imuUpdate = false;
-    bool cameraUpdate = true;
+    bool imuReady = false;
+    bool cameraReady = false;
+    bool allReady = false;
     bool mWriteOdo;
     bool mWriteBag;
+    string dir = "";
     uint8_t moving = 0;
 
     double tof = 0;// 离墙距离 m
@@ -75,6 +78,7 @@ public:
     uint8 UndisImage(rosbag::MessageInstance m);
     int RosbagInit();
     MyRobot(bool writeOdo, bool writeBag);
+    void SaveRobotData(const string &filename,double time);
 
     ofstream odometryFile;
 

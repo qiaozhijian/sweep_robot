@@ -124,6 +124,8 @@ namespace global
     ;
 }
 
+
+
 #define SWOP(n) (((n & 0x00FF) << 8 ) | ((n & 0xFF00) >> 8))
 #define CAT(a,b) (((a & 0x00FF) << 8 ) | (b & 0x00FF))
 #define CAT32(a,b,c,d) (((a & 0x000000FF) << 24) | ((b & 0x000000FF) << 16) | ((c & 0x000000FF) << 8) | ((d & 0x000000FF) << 0))
@@ -138,7 +140,5 @@ namespace global
 #define BIT_5(n)  (((n) & (1 << 5))!=0)
 #define BIT_6(n)  (((n) & (1 << 6))!=0)
 #define BIT_7(n)  (((n) & (1 << 7))!=0)
-
-
 
 #endif //SRC_GLOBAL_H

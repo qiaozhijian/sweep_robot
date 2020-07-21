@@ -59,6 +59,7 @@ set(sweepRobot_srclib
         src/myRobot.cpp
         src/imagePro.cpp
         src/control.cpp
+        src/utility.cpp
         )
 
 add_library(${PROJECT_NAME} ${sweepRobot_srclib} )
@@ -80,15 +81,16 @@ target_link_libraries( stereo_vo_node
         ${OpenCV_LIBS}
         ${PROJECT_NAME}
         )
-add_executable( stereo_cali_node src/stereo_cali.cpp)
-target_link_libraries( stereo_cali_node
+
+add_executable( odometer_node src/odometer.cpp)
+target_link_libraries( odometer_node
         ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
         ${PROJECT_NAME}
         )
 
-add_executable( odometer_node src/odometer.cpp)
-target_link_libraries( odometer_node
+add_executable( control_node src/control.cpp)
+target_link_libraries( control_node
         ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
         ${PROJECT_NAME}

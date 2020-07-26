@@ -12,7 +12,7 @@
         <param name="topic_camera1"  type="string" value="/cam1/image_raw" />
 
         <!-- bag parameters -->
-        <param name="path_bag"    type="string" value="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/04/2020-07-11-11-30-12.bag" />
+        <param name="path_bag"    type="string" value="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/06/2020-07-22-13-04-37.bag" />
 <!--         <param name="path_bag"    type="string" value="/media/qzj/Software/code/catkin_kalibr/dataset/dynamic/dynamic.bag" /> -->
         <param name="bag_start"   type="int"    value="0" />
         <param name="bag_durr"    type="int"    value="-1" />

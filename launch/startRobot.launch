@@ -10,6 +10,13 @@
 <!--      把saveImage打开-->
     <node pkg="sweepRobot" type="stereo_vo_node"    name="dwada"    output="screen"/>
 
-    <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw"/>
+    <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw vicon/sweeper/sweeper"/>
 
+	<node pkg="vicon_bridge" type="vicon_bridge" name="vicon" output="screen">
+		<param name="stream_mode" value="ClientPull" type="str" />
+		<param name="datastream_hostport" value="192.168.10.1:801" type="str" />
+		<param name="tf_ref_frame_id" value="/world" type="str" />
+		</node>
+
+    <node pkg="sweepRobot" type="viconSub_node"    name="dw645a"    output="screen"/>
 </launch>

@@ -159,9 +159,9 @@ int main(int argc, char **argv)            //程序主函数
                 sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), "mono8", imLeftRect).toImageMsg();
                 sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), "mono8", imRightRect).toImageMsg();
                 msg0->header.stamp = tImage;
-                msg0->header.frame_id = "sweep";
+                msg0->header.frame_id = "/sweep";
                 msg1->header.stamp = tImage;
-                msg1->header.frame_id = "sweep";
+                msg1->header.frame_id = "/sweep";
 
                 pub0.publish(msg0);
                 pub1.publish(msg1);

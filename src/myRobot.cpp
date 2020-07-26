@@ -14,7 +14,7 @@ MyRobot::MyRobot(bool writeOdo, bool writeBag) {
     mWriteOdo = writeOdo;
     mWriteBag = writeBag;
     if (writeOdo) {
-        odometryFile = ofstream("./odometry.txt");
+        odometryFile = ofstream("./odometry06.txt");
     }
     ROS_INFO("MyRobot Created.");
 
@@ -26,12 +26,6 @@ void MyRobot::HandleRosbag(rosbag::MessageInstance m) {
         // convert into correct format
         imuTime = (*s2).header.stamp.toSec();
         imuTime = imuTime - timeInit;
-
-        //tf::Quaternion orientation;
-        //tf::quaternionMsgToTF(s2->orientation, orientation);
-        //tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
-        //Eigen::Quaterniond qEuler(orientation.w(),orientation.x(),orientation.y(),orientation.z());
-        //Eigen::Vector3d eulerAngle=qEuler.matrix().eulerAngles(0,1,2);
 
         gyro_x = s2->angular_velocity.x;
         gyro_y = s2->angular_velocity.y;
@@ -46,12 +40,27 @@ void MyRobot::HandleRosbag(rosbag::MessageInstance m) {
         tof = s2->angular_velocity_covariance[3];
         pulseLeft = s2->angular_velocity_covariance[4];
         pulseRight = s2->angular_velocity_covariance[5];
+        roll = s2->angular_velocity_covariance[6]*M_PI/180.0;
+        pitch = s2->angular_velocity_covariance[7]*M_PI/180.0;
+        yaw = s2->angular_velocity_covariance[8]*M_PI/180.0;
 
+        Eigen::Vector3d eulerAngle(yaw,pitch,roll);
+        Eigen::AngleAxisd rollAngle(Eigen::AngleAxisd(eulerAngle(2),Eigen::Vector3d::UnitX()));
+        Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(eulerAngle(1),Eigen::Vector3d::UnitY()));
+        Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(eulerAngle(0),Eigen::Vector3d::UnitZ()));
+        Eigen::Quaterniond quaternion;
+        quaternion=yawAngle*pitchAngle*rollAngle;
+
+        //Eigen::Vector3d eulerAngle2=quaternion.matrix().eulerAngles(2,1,0);
+        //cout<<eulerAngle-eulerAngle2<<endl;
         if (mWriteOdo) {
-            ROS_INFO("mWriteOdo time: %s.", to_string(imuTime).c_str());
-            odometryFile << to_string(imuTime) << " " << to_string(gyro_x) << " " << to_string(gyro_y) << " "
-                         << to_string(gyro_z) << " " << to_string(accel_x) << " " << to_string(accel_y) << " "
-                         << to_string(accel_z) << " " << to_string(pulseLeft) << " " << to_string(pulseRight) << endl;
+            ROS_INFO("mWriteOdo time: %s. %f. %f. %f", to_string(imuTime).c_str(),roll,pitch,yaw);
+            odometryFile << to_string((*s2).header.stamp.toSec()) << " " << to_string(odometer_x) << " " << to_string(odometer_y) << " "
+                         << to_string(0.0) << " " << to_string(quaternion.x()) << " " << to_string(quaternion.y()) << " "
+                         << to_string(quaternion.z()) << " " << to_string(quaternion.w())<< endl;
+            //odometryFile << to_string(imuTime) << " " << to_string(gyro_x) << " " << to_string(gyro_y) << " "
+            //             << to_string(gyro_z) << " " << to_string(accel_x) << " " << to_string(accel_y) << " "
+            //             << to_string(accel_z) << " " << to_string(pulseLeft) << " " << to_string(pulseRight) << endl;
         }
         //ROS_INFO("IMU time: %f, gyro_x %f, gyro_y %f, gyro_z %f.", imuTime,gyro_x,gyro_y, gyro_z);
         //ROS_INFO("IMU time: %f, roll %f, pitch %f, yaw %f. Odometry x: %f, y %f, theta %f.", imuTime,roll/3.1415926*180.0,pitch/3.1415926*180.0, yaw/3.1415926*180.0, odometer_x,odometer_y,odometer_theta/3.1415926*180.0);
@@ -131,7 +140,7 @@ uint8 MyRobot::UndisImage(rosbag::MessageInstance m) {
 
         msg0 = cv_bridge::CvImage(std_msgs::Header(), "mono8", img0).toImageMsg();
         msg0->header.stamp = (*s0).header.stamp;
-        msg0->header.frame_id = "sweep";
+        msg0->header.frame_id = "/sweep";
 
         imshow("img0", img0);
         waitKey(1);
@@ -162,7 +171,7 @@ uint8 MyRobot::UndisImage(rosbag::MessageInstance m) {
         waitKey(1);
         msg1 = cv_bridge::CvImage(std_msgs::Header(), "mono8", img1).toImageMsg();
         msg1->header.stamp = (*s1).header.stamp;
-        msg1->header.frame_id = "sweep";
+        msg1->header.frame_id = "/sweep";
 
         return RIGHT_TOPIC;
     }

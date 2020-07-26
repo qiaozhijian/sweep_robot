@@ -7,6 +7,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <math.h>
 
 #define IMU_TOPIC 0
 #define LEFT_TOPIC 1
@@ -48,14 +49,14 @@ public:
     double w_x_self = 0.0; //弧度制
     double w_y_self = 0.0; //弧度制
     double w_z_self = 0.0; //弧度制
-    double pitch = 0.0;
-    double roll = 0.0;
+    double pitch = 0.0;//角度制
+    double roll = 0.0;//角度制
     double yaw = 0.0;//角度制
     int16_t pulseLeft = 0;//左轮脉冲
     int16_t pulseRight = 0;//右轮脉冲
     double odometer_x = 0.0;
     double odometer_y = 0.0;
-    double odometer_theta = 0.0; //弧度制，与yaw相反数，但因为弧度制和角度制计算误差，所以不完全一样
+    double odometer_theta = 0.0; //弧度制，与原始的yaw相反数，但因为弧度制和角度制计算误差，所以不完全一样
 
     string topic_imu,topic_camera0,topic_camera1;
     double img0Time,img1Time,imuTime,timeInit;

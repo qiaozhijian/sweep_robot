@@ -36,8 +36,8 @@ void IMUCallback(const sensor_msgs::Imu::ConstPtr &msg) {
     this_pose_stamped.pose.orientation.w = quaternionOdo.w();
 
     this_pose_stamped.header.stamp = msg->header.stamp;
-    this_pose_stamped.header.frame_id = "sweep";
-    path.header.frame_id = "sweep";
+    this_pose_stamped.header.frame_id = "/sweep";
+    path.header.frame_id = "/sweep";
     path.poses.push_back(this_pose_stamped);
     receiveIMU = true;
 
@@ -77,8 +77,7 @@ int main(int argc, char **argv) {
     nh.param<std::string>("topic_imu", myRobot.topic_imu, "/imu0");
     nh.param<std::string>("topic_camera0", myRobot.topic_camera0, "/cam0/image_raw");
     nh.param<std::string>("topic_camera1", myRobot.topic_camera1, "/cam1/image_raw");
-    nh.param<std::string>("path_bag", myRobot.path_to_bag, "/media/qzj/FA9E-F35A/dynamic/dynamic.bag");
-    //nh.param<std::string>("path_bag", myRobot.path_to_bag, "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/03/2020-07-01-21-29-20.bag");
+    nh.param<std::string>("path_bag", myRobot.path_to_bag, "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/06/2020-07-22-13-04-37.bag");
     nh.param<double>("bag_start", myRobot.bag_start, 0);
     nh.param<double>("bag_durr", myRobot.bag_durr, -1);
     ROS_INFO("load bag %s.", myRobot.path_to_bag.c_str());

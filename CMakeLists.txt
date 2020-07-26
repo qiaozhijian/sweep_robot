@@ -38,6 +38,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
 )
+
 # 寻找OpenCV库
 find_package( OpenCV 3 REQUIRED)
 # 添加头文件
@@ -48,10 +49,12 @@ catkin_package(
 )
 
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
-  $(Eigen_INCLUDE_DIRS)
+        include
+        srv
+        msg
+        ${catkin_INCLUDE_DIRS}
+        ${OpenCV_INCLUDE_DIRS}
+        $(Eigen_INCLUDE_DIRS)
 )
 set(sweepRobot_srclib
         src/crc.cpp
@@ -104,3 +107,8 @@ target_link_libraries( modifyROSbag_node
         ${PROJECT_NAME}
         )
 
+add_executable( viconSub_node src/viconSub.cpp)
+target_link_libraries( viconSub_node
+        ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
+        )

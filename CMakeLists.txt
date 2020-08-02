@@ -68,6 +68,12 @@ set(sweepRobot_srclib
 add_library(${PROJECT_NAME} ${sweepRobot_srclib} )
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
+add_executable( stereo_cali_node src/stereo_cali.cpp)
+target_link_libraries( stereo_cali_node
+        ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
+        )
+
 add_executable( sweepRobotnode src/main.cpp)
 target_link_libraries( sweepRobotnode
         ${catkin_LIBRARIES}

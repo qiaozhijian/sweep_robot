@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
     nh.param<std::string>("topic_imu", myRobot.topic_imu, "/imu0");
     nh.param<std::string>("topic_camera0", myRobot.topic_camera0, "/cam0/image_raw");
     nh.param<std::string>("topic_camera1", myRobot.topic_camera1, "/cam1/image_raw");
-    nh.param<std::string>("path_bag", myRobot.path_to_bag, "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/06/2020-07-22-13-04-37.bag");
+    nh.param<std::string>("path_bag", myRobot.path_to_bag, "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/06/2020-07-29-18-43-57.bag");
     nh.param<double>("bag_start", myRobot.bag_start, 0);
     nh.param<double>("bag_durr", myRobot.bag_durr, -1);
     ROS_INFO("load bag %s.", myRobot.path_to_bag.c_str());

@@ -14,7 +14,7 @@ MyRobot::MyRobot(bool writeOdo, bool writeBag) {
     mWriteOdo = writeOdo;
     mWriteBag = writeBag;
     if (writeOdo) {
-        odometryFile = ofstream("./odometry06.txt");
+        odometryFile = ofstream("./odometry.txt");
     }
     ROS_INFO("MyRobot Created.");
 

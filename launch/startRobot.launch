@@ -18,5 +18,5 @@
 		<param name="tf_ref_frame_id" value="/world" type="str" />
 		</node>
 
-    <node pkg="sweepRobot" type="viconSub_node"    name="dw645a"    output="screen"/>
+    <node pkg="sweepRobot" type="viconSub_node"    name="dw645a"  output="screen"/>
 </launch>

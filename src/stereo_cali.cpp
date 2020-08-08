@@ -6,6 +6,7 @@
 #include<opencv2/videoio.hpp>
 #include<opencv2/opencv.hpp>
 #include<stdio.h>
+#include "ros/ros.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -52,8 +53,11 @@ int32_t createDirectory(const std::string &directoryPath)
 using namespace std;
 using namespace cv;
 //
-int main(int argc, const char **argv)            //程序主函数
+int main(int argc, char **argv)            //程序主函数
 {
+    ros::init(argc, argv, "stereo_cali_node");
+    ros::NodeHandle nh;
+
     VideoCapture cap;
     int width = 1280;
     int height = 480;
@@ -84,9 +88,17 @@ int main(int argc, const char **argv)            //程序主函数
     char image_left[200];
     char image_right[200];
     int count = 0;
-    createDirectory("./img/right/");
-    createDirectory("./img/left/");
-    while (1) {
+
+    time_t now_time = time(NULL);
+    tm *T_tm = localtime(&now_time);
+    //转换为年月日星期时分秒结果，如图：
+    string timeDetail = asctime(T_tm);
+    timeDetail.pop_back();
+    string dir = "./dataset/" + timeDetail + "img/";
+
+    createDirectory(dir + "cam0/");
+    createDirectory(dir + "cam1/");
+    while (ros::ok()) {
         cap >> frame;                            //从相机捕获一帧图像
         resize(frame, imagedst, dsize);          //对捕捉的图像进行缩放操作
 
@@ -103,10 +115,11 @@ int main(int argc, const char **argv)            //程序主函数
             break;
         //32对应空格
         if (key == 32) {
-            sprintf(image_left, "./img/left/%06d.jpg", count);
-            imwrite(image_left, frame_L);
-            sprintf(image_right, "./img/right/%06d.jpg", count);
-            imwrite(image_right, frame_R);
+            uint64_t time = ros::Time::now().toNSec();
+            //sprintf(image_left, "%u.jpg", time);
+            imwrite(dir + "cam0/" + to_string(time) + ".jpg", frame_L);
+            //sprintf(image_right, "%u.jpg", time);
+            imwrite(dir + "cam1/" + to_string(time) + ".jpg", frame_L);
             count++;
             cout<<"save "<<count<<endl;
         }

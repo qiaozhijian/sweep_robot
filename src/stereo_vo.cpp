@@ -9,7 +9,7 @@ void SaveCameraTime(const string &filename, double time);
 
 
 VideoCapture cap;
-int width = 1280;
+int width = 640;
 int height = 480;
 //最快50Hz，再往上也不行了
 int FPS = 50;
@@ -26,7 +26,7 @@ void createDir(MyRobot* pmyData) {
 }
 
 void InitCap() {
-    cap.open(2);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
+    cap.open(0);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
     //--------------------------------------------------------------------------------------
     cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));//视频流格式
     cap.set(CV_CAP_PROP_FPS, FPS);//帧率
@@ -48,13 +48,16 @@ bool remapImage = false;
 int main(int argc, char **argv)            //程序主函数
 {
     ros::init(argc, argv, "stereo_vo_node");
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("stereo_vo_node");
     image_transport::ImageTransport it(nh);
     //在camera/image话题上发布图像，这里第一个参数是话题的名称，第二个是缓冲区的大小
     image_transport::Publisher pub0 = it.advertise("/cam0/image_raw", 50);
     image_transport::Publisher pub1 = it.advertise("/cam1/image_raw", 50);
     ros::Publisher vo_pub = nh.advertise<std_msgs::String>("/vo_dir", 5);
     ROS_INFO("stereo_vo_node init.");
+    string down_sample = "0";
+    //注意添加/，表示ros空间里的变量
+    nh.param<std::string>("DOWN_SAMPLE", down_sample, "0");
 
     MyRobot* pmyData = getMyData();
     InitCap();
@@ -68,10 +71,11 @@ int main(int argc, char **argv)            //程序主函数
     int count = 0;
     bool cameraFail = false;
 
-    string strwriting = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/cali/result/robot_orb_stereo.yaml";
+    string strwriting = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/cali/result/robot_orb_stereo.yaml";
+
     cv::FileStorage fsSettings(strwriting.c_str(), cv::FileStorage::READ);
 
-    if (!fsSettings.isOpened()) {
+    if (remapImage && !fsSettings.isOpened()) {
         cerr << "ERROR: Wrong path to settings" << endl;
         return -1;
     }
@@ -94,18 +98,21 @@ int main(int argc, char **argv)            //程序主函数
     int rows_r = fsSettings["RIGHT.height"];
     int cols_r = fsSettings["RIGHT.width"];
 
-    if (K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() ||
+    if (remapImage &&( K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() ||
         D_r.empty() ||
-        rows_l == 0 || rows_r == 0 || cols_l == 0 || cols_r == 0) {
+        rows_l == 0 || rows_r == 0 || cols_l == 0 || cols_r == 0)) {
         cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
         return -1;
     }
 
     cv::Mat M1l, M2l, M1r, M2r;
-    cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l.rowRange(0, 3).colRange(0, 3), cv::Size(cols_l, rows_l), CV_32F, M1l,
-                                M2l);
-    cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r.rowRange(0, 3).colRange(0, 3), cv::Size(cols_r, rows_r), CV_32F, M1r,
-                                M2r);
+    if(remapImage)
+    {
+        cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l.rowRange(0, 3).colRange(0, 3), cv::Size(cols_l, rows_l), CV_32F, M1l,
+                                    M2l);
+        cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r.rowRange(0, 3).colRange(0, 3), cv::Size(cols_r, rows_r), CV_32F, M1r,
+                                    M2r);
+    }
 
     cv::Mat imLeft, imRight, imLeftRect, imRightRect;
     if (showImages) {
@@ -138,7 +145,7 @@ int main(int argc, char **argv)            //程序主函数
             } else if (frame.channels() == 4) {
                 cvtColor(frame, frameGrey, CV_BGRA2GRAY);
             }
-
+            //cout<<frameGrey.size()<<endl;
             frame_L = frameGrey(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
             frame_R = frameGrey(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
 
@@ -163,8 +170,17 @@ int main(int argc, char **argv)            //程序主函数
                 msg1->header.stamp = tImage;
                 msg1->header.frame_id = "/sweep";
 
-                pub0.publish(msg0);
-                pub1.publish(msg1);
+                static int count=0;
+                count++;
+                if(down_sample=="1" && count%2==0)
+                {
+                    pub0.publish(msg0);
+                    pub1.publish(msg1);
+                } else if(down_sample=="0")
+                {
+                    pub0.publish(msg0);
+                    pub1.publish(msg1);
+                }
             }
 
             if (saveImages) {
@@ -179,7 +195,7 @@ int main(int argc, char **argv)            //程序主函数
             if (showImages) {
                 imshow("Video_R", imLeftRect);
                 imshow("Video_L", imRightRect);
-                waitKey(3);
+                waitKey(1);
             }
         } else {
             if (!cameraFail) {

@@ -1,18 +1,18 @@
 <launch>
 
-<!--     <node pkg="rosbag" type="play" name="play" output="screen" args=" /media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/03/2020-07-01-21-29-20.bag"/>--> -->
+<!--     <node pkg="rosbag" type="play" name="play" output="screen" args=" /media/qzj/Document/grow/research/slamDataSet/sweep_robot/round2/03/2020-07-01-21-29-20.bag"/>--> -->
 <!--     <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0.0 0.0 0.0 0.0 0.0 0.0 /map  /sweep 100" /> -->
 
-<!--     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find sweepRobot)/launch/my.rviz" /> -->
+<!--     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find sweep_robot)/launch/my.rviz" /> -->
 
-    <node name="odometer_node" pkg="sweepRobot" type="odometer_node" output="screen">
+    <node name="odometer_node" pkg="sweep_robot" type="odometer_node" output="screen">
         <!-- bag topics -->
         <param name="topic_imu"      type="string" value="/imu0" />
         <param name="topic_camera0"  type="string" value="/cam0/image_raw" />
         <param name="topic_camera1"  type="string" value="/cam1/image_raw" />
 
         <!-- bag parameters -->
-        <param name="path_bag"    type="string" value="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round2/06/2020-07-22-13-04-37.bag" />
+        <param name="path_bag"    type="string" value="/media/qzj/Document/grow/research/slamDataSet/sweep_robot/round2/06/2020-07-22-13-04-37.bag" />
 <!--         <param name="path_bag"    type="string" value="/media/qzj/Software/code/catkin_kalibr/dataset/dynamic/dynamic.bag" /> -->
         <param name="bag_start"   type="int"    value="0" />
         <param name="bag_durr"    type="int"    value="-1" />

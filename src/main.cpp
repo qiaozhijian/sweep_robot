@@ -8,7 +8,7 @@
 #include <serial/serial.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
-#include "utility.h"
+#include "include/utility/utility.h"
 #include "geometry_msgs/TransformStamped.h"
 
 
@@ -80,7 +80,8 @@ int main(int argc, char **argv) {
         loop_rate.sleep();
     }
 
-    while(vo_dir=="")
+
+    while(vo_dir=="" && isIMUrecord.compare("1")!=0)
     {
         ros::spinOnce();
     }
@@ -131,11 +132,16 @@ int main(int argc, char **argv) {
                     imu_data.angular_velocity_covariance[6] = pmyData->roll;
                     imu_data.angular_velocity_covariance[7] = pmyData->pitch;
                     imu_data.angular_velocity_covariance[8] = pmyData->yaw;
+                    //ROS_INFO("rosbag record: %d",pmyData->chassisTime);
                 }
-
+                //else
+                //    ROS_INFO("delta time: %d",pmyData->chassisTime);
                 IMU_pub.publish(imu_data);
-                pmyData->SaveRobotData(pmyData->dir + "/robot.txt",imu_data.header.stamp.toSec());
-                ROS_INFO("delta time: %d",pmyData->chassisTime);
+                pmyData->SaveRobotData(pmyData->dir + "./robot.txt",imu_data.header.stamp.toSec());
+                pmyData->SaveOdometer(pmyData->dir + "./odometry.txt",imu_data.header.stamp.toSec());
+
+                ROS_INFO("Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f.",pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z, pmyData->accel_x,
+                         pmyData->accel_y, pmyData->accel_z);
                 //ROS_INFO("delta time: %d,Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f; roll %f, pitch %f. yaw %f.",
                 //         pmyData->chassisTime - reportLast, pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z, pmyData->accel_x,
                 //         pmyData->accel_y, pmyData->accel_z, pmyData->roll, pmyData->pitch, pmyData->yaw);

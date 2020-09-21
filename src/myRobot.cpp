@@ -40,24 +40,26 @@ void MyRobot::HandleRosbag(rosbag::MessageInstance m) {
         tof = s2->angular_velocity_covariance[3];
         pulseLeft = s2->angular_velocity_covariance[4];
         pulseRight = s2->angular_velocity_covariance[5];
-        roll = s2->angular_velocity_covariance[6]*M_PI/180.0;
-        pitch = s2->angular_velocity_covariance[7]*M_PI/180.0;
-        yaw = s2->angular_velocity_covariance[8]*M_PI/180.0;
+        roll = s2->angular_velocity_covariance[6] * M_PI / 180.0;
+        pitch = s2->angular_velocity_covariance[7] * M_PI / 180.0;
+        yaw = s2->angular_velocity_covariance[8] * M_PI / 180.0;
 
-        Eigen::Vector3d eulerAngle(yaw,pitch,roll);
-        Eigen::AngleAxisd rollAngle(Eigen::AngleAxisd(eulerAngle(2),Eigen::Vector3d::UnitX()));
-        Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(eulerAngle(1),Eigen::Vector3d::UnitY()));
-        Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(eulerAngle(0),Eigen::Vector3d::UnitZ()));
+        Eigen::Vector3d eulerAngle(yaw, pitch, roll);
+        Eigen::AngleAxisd rollAngle(Eigen::AngleAxisd(eulerAngle(2), Eigen::Vector3d::UnitX()));
+        Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(eulerAngle(1), Eigen::Vector3d::UnitY()));
+        Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(eulerAngle(0), Eigen::Vector3d::UnitZ()));
         Eigen::Quaterniond quaternion;
-        quaternion=yawAngle*pitchAngle*rollAngle;
+        quaternion = yawAngle * pitchAngle * rollAngle;
 
         //Eigen::Vector3d eulerAngle2=quaternion.matrix().eulerAngles(2,1,0);
         //cout<<eulerAngle-eulerAngle2<<endl;
         if (mWriteOdo) {
-            ROS_INFO("mWriteOdo time: %s. %f. %f. %f", to_string(imuTime).c_str(),roll,pitch,yaw);
-            odometryFile << to_string((*s2).header.stamp.toSec()) << " " << to_string(odometer_x) << " " << to_string(odometer_y) << " "
-                         << to_string(0.0) << " " << to_string(quaternion.x()) << " " << to_string(quaternion.y()) << " "
-                         << to_string(quaternion.z()) << " " << to_string(quaternion.w())<< endl;
+            ROS_INFO("mWriteOdo time: %s. %f. %f. %f", to_string(imuTime).c_str(), roll, pitch, yaw);
+            odometryFile << to_string((*s2).header.stamp.toSec()) << " " << to_string(odometer_x) << " "
+                         << to_string(odometer_y) << " "
+                         << to_string(0.0) << " " << to_string(quaternion.x()) << " " << to_string(quaternion.y())
+                         << " "
+                         << to_string(quaternion.z()) << " " << to_string(quaternion.w()) << endl;
             //odometryFile << to_string(imuTime) << " " << to_string(gyro_x) << " " << to_string(gyro_y) << " "
             //             << to_string(gyro_z) << " " << to_string(accel_x) << " " << to_string(accel_y) << " "
             //             << to_string(accel_z) << " " << to_string(pulseLeft) << " " << to_string(pulseRight) << endl;
@@ -203,14 +205,36 @@ int MyRobot::RosbagInit() {
     ROS_INFO("Init finish");
 }
 
-void MyRobot::SaveRobotData(const string &filename,double time)
-{
-    if(allReady)
+void MyRobot::SaveRobotData(const string &filename, double time) {
+    if (allReady)
         ROS_INFO(filename.c_str());
     ofstream f;
     f.open(filename.c_str(), ios::out | ios::app);
     f << fixed;
-    f << setprecision(9) << time <<" "<<gyro_x << " " << gyro_y << " " << gyro_z << " " << accel_x << " " << accel_y << " " << accel_z << " " << odometer_x << " " << odometer_y << " " << odometer_theta << endl;
+    f << setprecision(9) << time << " " << gyro_x << " " << gyro_y << " " << gyro_z << " " << accel_x << " " << accel_y
+      << " " << accel_z << " " << odometer_x << " " << odometer_y << " " << odometer_theta << endl;
+    f.close();
+}
+
+void MyRobot::SaveOdometer(const string &filename, double time) {
+    if (allReady)
+        ROS_INFO(filename.c_str());
+
+    Eigen::Vector3d eulerAngle(yaw * M_PI / 180.0, pitch * M_PI / 180.0, roll * M_PI / 180.0);
+    Eigen::AngleAxisd rollAngle(Eigen::AngleAxisd(eulerAngle(2), Eigen::Vector3d::UnitX()));
+    Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(eulerAngle(1), Eigen::Vector3d::UnitY()));
+    Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(eulerAngle(0), Eigen::Vector3d::UnitZ()));
+    Eigen::Quaterniond quaternion;
+    quaternion = yawAngle * pitchAngle * rollAngle;
+
+    ofstream f;
+    f.open(filename.c_str(), ios::out | ios::app);
+    f << fixed;
+    f << setprecision(9) << time << " " << to_string(odometer_x) << " "
+      << to_string(odometer_y) << " "
+      << to_string(0.0) << " " << to_string(quaternion.x()) << " " << to_string(quaternion.y())
+      << " "
+      << to_string(quaternion.z()) << " " << to_string(quaternion.w()) << endl;
     f.close();
 }
 

@@ -1,0 +1,21 @@
+<launch>
+
+     <node pkg="rosbag" type="play" name="play" output="log" args=" /media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/01/2020-07-26-19-47-34.bag"/>
+     <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0.0 0.0 0.0 0.0 0.0 0.0 /map  /sweep 100" />
+
+<!--     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find sweepRobot)/launch/my.rviz" /> -->
+
+    <node name="odoAcc_node" pkg="sweep_robot" type="odoAcc_node" output="screen">
+        <!-- bag topics -->
+        <param name="topic_imu"      type="string" value="/imu0" />
+        <param name="topic_camera0"  type="string" value="/cam0/image_raw" />
+        <param name="topic_camera1"  type="string" value="/cam1/image_raw" />
+
+        <!-- bag parameters -->
+        <param name="path_bag"    type="string" value="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/04/2020-07-29-18-40-03.bag" />
+        <param name="bag_start"   type="int"    value="0" />
+        <param name="bag_durr"    type="int"    value="-1" />
+    </node>
+
+
+</launch>

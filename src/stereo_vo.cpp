@@ -1,5 +1,5 @@
 #include "global.h"
-#include "utility.h"
+#include "include/utility/utility.h"
 #include "command.h"
 #include "myRobot.h"
 
@@ -9,7 +9,7 @@ void SaveCameraTime(const string &filename, double time);
 
 
 VideoCapture cap;
-int width = 640;
+int width = 1280;
 int height = 480;
 //最快50Hz，再往上也不行了
 int FPS = 50;
@@ -26,7 +26,7 @@ void createDir(MyRobot* pmyData) {
 }
 
 void InitCap() {
-    cap.open(0);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
+    cap.open(2);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
     //--------------------------------------------------------------------------------------
     cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));//视频流格式
     cap.set(CV_CAP_PROP_FPS, FPS);//帧率

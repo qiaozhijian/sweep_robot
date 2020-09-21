@@ -35,7 +35,7 @@ uint8 CheckStatic(double wz) {
 }
 
 // 输入原始角速度wRaw，输出去零飘的角速度wNew
-void RemoveBias(double wRaw[3], double wNew[3]) {
+void estimateBias(double wRaw[3], double wNew[3]) {
     static double wRawSlide[3][STATIC_BUFFER_NUM] = {0.f};
     static uint32 staticCount = 0;
     static double wBiasSum[3] = {0.f};
@@ -192,7 +192,7 @@ void Analyse(vector<uint8> frame) {
 #ifdef ROMOVE_BIAS
                 double gyro_raw[3] = {pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z};
                 double gyro_new[3] = {0.0};
-                RemoveBias(gyro_raw, gyro_new);
+                estimateBias(gyro_raw, gyro_new);
                 pmyData->w_x_self = gyro_new[0];
                 pmyData->w_y_self = gyro_new[1];
                 pmyData->w_z_self = gyro_new[2];

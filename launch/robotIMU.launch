@@ -2,7 +2,7 @@
     <!--- Sim Time -->
     <param name="/use_sim_time" value="false" />
 
-    <node name="sweepRobotnode" pkg="sweepRobot" type="sweepRobotnode" output="screen">
+    <node name="sweepRobotnode" pkg="sweep_robot" type="sweepRobotnode" output="screen">
         <param name="RECORD_IMU" type="string" value="1" />
     </node>
 

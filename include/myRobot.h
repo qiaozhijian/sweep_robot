@@ -80,6 +80,7 @@ public:
     int RosbagInit();
     MyRobot(bool writeOdo, bool writeBag);
     void SaveRobotData(const string &filename,double time);
+    void SaveOdometer(const string &filename,double time);
 
     ofstream odometryFile;
 

@@ -8,7 +8,7 @@
 #include <serial/serial.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
-#include "include/utility/utility.h"
+#include "utility.h"
 #include "geometry_msgs/TransformStamped.h"
 
 

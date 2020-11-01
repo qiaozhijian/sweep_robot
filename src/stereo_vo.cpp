@@ -1,32 +1,35 @@
 #include "global.h"
 #include "utility.h"
-#include "command.h"
-#include "myRobot.h"
-
+#include "thread"
+#include <termio.h>
 using namespace std;
 using namespace cv;
 void SaveCameraTime(const string &filename, double time);
 
-
 VideoCapture cap;
-int width = 1280;
-int height = 480;
+//int width = 1280;
+//int height = 480;
+int width = 2560;
+int height = 720;
 //最快50Hz，再往上也不行了
 int FPS = 50;
+string dir="";
 
-void createDir(MyRobot* pmyData) {
+void createDir() {
     time_t now_time = time(NULL);
     tm *T_tm = localtime(&now_time);
     //转换为年月日星期时分秒结果，如图：
     string timeDetail = asctime(T_tm);
     timeDetail.pop_back();
-    pmyData->dir = "./dataset/" + timeDetail + "img/";
-    createDirectory(pmyData->dir + "right/");
-    createDirectory(pmyData->dir + "left/");
+    dir = "./dataset/" + timeDetail + "img/";
+    createDirectory(dir + "right/");
+    createDirectory(dir + "left/");
+    createDirectory(dir + "space/right/");
+    createDirectory(dir + "space/left/");
 }
 
-void InitCap() {
-    cap.open(2);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
+void InitCap(int id) {
+    cap.open(id);                             //打开相机，电脑自带摄像头一般编号为0，外接摄像头编号为1，主要是在设备管理器中查看自己摄像头的编号。
     //--------------------------------------------------------------------------------------
     cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));//视频流格式
     cap.set(CV_CAP_PROP_FPS, FPS);//帧率
@@ -40,35 +43,58 @@ void InitCap() {
     }
 }
 
-bool saveImages = true;
 bool showImages = false;
 bool remapImage = false;
+
+void GetKey(char& key)
+{
+    while(1)
+    {
+        struct termios new_settings;
+        struct termios stored_settings;
+        tcgetattr(STDIN_FILENO, &stored_settings); //获得stdin 输入
+        new_settings = stored_settings;           //
+        new_settings.c_lflag &= (~ICANON);        //
+        new_settings.c_cc[VTIME] = 0;
+        tcgetattr(STDIN_FILENO, &stored_settings); //获得stdin 输入
+        new_settings.c_cc[VMIN] = 1;
+        tcsetattr(STDIN_FILENO, TCSANOW, &new_settings); //
+        key = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &stored_settings);
+
+    }
+}
 
 //
 int main(int argc, char **argv)            //程序主函数
 {
-    ros::init(argc, argv, "stereo_vo_node");
-    ros::NodeHandle nh("stereo_vo_node");
+    ros::init(argc, argv, "stereo_video_node");
+    ros::NodeHandle nh("~");
     image_transport::ImageTransport it(nh);
     //在camera/image话题上发布图像，这里第一个参数是话题的名称，第二个是缓冲区的大小
     image_transport::Publisher pub0 = it.advertise("/cam0/image_raw", 50);
     image_transport::Publisher pub1 = it.advertise("/cam1/image_raw", 50);
-    ros::Publisher vo_pub = nh.advertise<std_msgs::String>("/vo_dir", 5);
-    ROS_INFO("stereo_vo_node init.");
+    ROS_INFO("autocar stereo_vo_node init.");
     string down_sample = "0";
+    string cam_id = "0";
+    string saveImages;
+    string grey;
     //注意添加/，表示ros空间里的变量
     nh.param<std::string>("DOWN_SAMPLE", down_sample, "0");
+    nh.param<std::string>("CAM_ID", cam_id, "0");
+    nh.param<std::string>("SAVE", saveImages, "0");
+    nh.param<std::string>("GREY", grey, "0");
 
-    MyRobot* pmyData = getMyData();
-    InitCap();
+    ROS_INFO("DOWN_SAMPLE %d, CAM_ID %d.",stoi(down_sample),stoi(cam_id));
+    InitCap(stoi(cam_id));
 
-    createDir(pmyData);
+    if(saveImages!="0")
+        createDir();
 
     Mat frame = Mat::zeros(Size(width, height), CV_8UC3);
     Mat frameGrey = Mat::zeros(Size(width, height), CV_8UC1);
     Mat frame_L, frame_R;
-    char image_idx[200];
-    int count = 0;
+    uint64_t count = 0;
     bool cameraFail = false;
 
     string strwriting = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/cali/result/robot_orb_stereo.yaml";
@@ -120,34 +146,34 @@ int main(int argc, char **argv)            //程序主函数
         namedWindow("Video_R");
     }
     ros::Rate loop_rate(200);
-    double tStart = ros::Time::now().toSec();
     double tNow = ros::Time::now().toSec();
     ros::Time tImage = ros::Time::now();
-    double internal = 1.0 / 11.0;
-    bool first = true;
     vector<double > timeStamp;
     timeStamp.reserve(20000);
-
-
-    std_msgs::String msg;
-    msg.data = pmyData->dir;
-    vo_pub.publish(msg);
-    ROS_INFO("vo ready!");
-
-
+    char key;
+    thread getKey(GetKey,std::ref(key));
+    int spaceCnt = 0;
     while (ros::ok()) {
         //好像固定50 fps
         if (cap.read(frame)) {
+            count++;
             tImage = ros::Time::now();
-            //    变成灰度图
-            if (frame.channels() == 3) {
-                cvtColor(frame, frameGrey, CV_BGR2GRAY);
-            } else if (frame.channels() == 4) {
-                cvtColor(frame, frameGrey, CV_BGRA2GRAY);
+            if(grey!="0")
+            {
+                //    变成灰度图
+                if (frame.channels() == 3) {
+                    cvtColor(frame, frameGrey, CV_BGR2GRAY);
+                } else if (frame.channels() == 4) {
+                    cvtColor(frame, frameGrey, CV_BGRA2GRAY);
+                }
+                //cout<<frameGrey.size()<<endl;
+                frame_L = frameGrey(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
+                frame_R = frameGrey(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
+            }else
+            {
+                frame_L = frame(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
+                frame_R = frame(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
             }
-            //cout<<frameGrey.size()<<endl;
-            frame_L = frameGrey(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
-            frame_R = frameGrey(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
 
             if (remapImage) {
                 cv::remap(frame_L, imLeftRect, M1l, M2l, cv::INTER_LINEAR);
@@ -156,40 +182,43 @@ int main(int argc, char **argv)            //程序主函数
                 imLeftRect = frame_L;
                 imRightRect = frame_R;
             }
-
-            //就按最大频率吧，内存大一点就大一点，但运动模糊的可以去除
-            //tNow = ros::Time::now().toSec();
-            //if(tNow-tStart>internal || first)
+            if((down_sample=="1" && count%20==0) || down_sample=="0")
             {
-                first = false;
-                tStart = tNow;
-                sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), "mono8", imLeftRect).toImageMsg();
-                sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), "mono8", imRightRect).toImageMsg();
+                string encoding = "mono8";
+                if(grey=="0")
+                    encoding = "bgr8";
+                sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), encoding, imLeftRect).toImageMsg();
+                sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), encoding, imRightRect).toImageMsg();
                 msg0->header.stamp = tImage;
                 msg0->header.frame_id = "/sweep";
                 msg1->header.stamp = tImage;
                 msg1->header.frame_id = "/sweep";
 
-                static int count=0;
-                count++;
-                if(down_sample=="1" && count%2==0)
-                {
-                    pub0.publish(msg0);
-                    pub1.publish(msg1);
-                } else if(down_sample=="0")
-                {
-                    pub0.publish(msg0);
-                    pub1.publish(msg1);
-                }
-            }
+                pub0.publish(msg0);
+                pub1.publish(msg1);
 
-            if (saveImages) {
-                sprintf(image_idx, "%06d.jpg", count);
-                SaveCameraTime(pmyData->dir + "cameraStamps.txt", tImage.toSec());
-                imwrite(pmyData->dir + "left/" + image_idx, imLeftRect);
-                imwrite(pmyData->dir + "right/" + image_idx, imRightRect);
-                count++;
-                ROS_INFO("save %d", count);
+                if (saveImages!="0") {
+                    double now = tImage.toSec();
+                    string image_L_path = dir + "left/" + to_string(uint64_t(now*1e9)) + ".jpg";
+                    string image_R_path = dir + "right/" + to_string(uint64_t(now*1e9)) + ".jpg";
+                    SaveCameraTime(dir + "cameraStamps.txt", now*1e9);
+                    imwrite(image_L_path, imLeftRect);
+                    imwrite(image_R_path, imRightRect);
+                    if(count%10==0)
+                        ROS_INFO("save %d", count);
+
+                    //32对应空格
+                    if (key == 32) {
+                        key=0;
+                        string image_L_path = dir + "space/left/" + to_string(uint64_t(now*1e9)) + ".jpg";
+                        string image_R_path = dir + "space/right/" + to_string(uint64_t(now*1e9)) + ".jpg";
+                        imwrite(image_L_path, frame_L);
+                        imwrite(image_R_path, frame_L);
+//                        SaveCameraTime(dir + "cameraStamps.txt", now*1e9);
+                        spaceCnt++;
+                        ROS_INFO("save space img %d", spaceCnt);
+                    }
+                }
             }
 
             if (showImages) {

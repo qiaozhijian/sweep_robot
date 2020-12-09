@@ -8,7 +8,12 @@
     <node pkg="sweep_robot" type="keyboard_node"    name="ssdfds"    output="screen"/>
     <node pkg="sweep_robot" type="control_node"    name="asad"    output="screen"/>
 <!--      把saveImage打开-->
-    <node pkg="sweep_robot" type="stereo_vo_node"    name="dwada"    output="screen"/>
+    <node pkg="sweep_robot" type="stereo_vo_node" name="stereo_video_node" output="screen">
+        <param name="CAM_ID" value="0" type="str"/>
+        <param name="DOWN_SAMPLE" value="0" type="str"/>
+        <param name="SAVE" value="1" type="str"/>
+        <param name="GREY" value="1" type="str"/>
+    </node>
 
     <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw vicon/sweeper/sweeper"/>
 

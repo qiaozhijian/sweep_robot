@@ -7,10 +7,10 @@ using namespace cv;
 void SaveCameraTime(const string &filename, double time);
 
 VideoCapture cap;
-//int width = 1280;
-//int height = 480;
-int width = 2560;
-int height = 720;
+int width = 1280;
+int height = 480;
+//int width = 2560;
+//int height = 720;
 //最快50Hz，再往上也不行了
 int FPS = 50;
 string dir="";
@@ -97,7 +97,7 @@ int main(int argc, char **argv)            //程序主函数
     uint64_t count = 0;
     bool cameraFail = false;
 
-    string strwriting = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/cali/result/robot_orb_stereo.yaml";
+    string strwriting = "/home/qzj/code/catkin_ws/src/ORB-SLAM3/config/robot/robot_orb_stereo_new.yaml";
 
     cv::FileStorage fsSettings(strwriting.c_str(), cv::FileStorage::READ);
 
@@ -182,7 +182,7 @@ int main(int argc, char **argv)            //程序主函数
                 imLeftRect = frame_L;
                 imRightRect = frame_R;
             }
-            if((down_sample=="1" && count%20==0) || down_sample=="0")
+            if((down_sample=="1" && count%10==0) || down_sample=="0")
             {
                 string encoding = "mono8";
                 if(grey=="0")

@@ -80,7 +80,6 @@ int main(int argc, char **argv) {
         loop_rate.sleep();
     }
 
-
     while(vo_dir=="" && isIMUrecord.compare("1")!=0)
     {
         ros::spinOnce();

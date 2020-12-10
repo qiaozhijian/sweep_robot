@@ -62,7 +62,7 @@ set(sweepRobot_srclib
         src/command.cpp
         src/myRobot.cpp
         src/imagePro.cpp
-        src/control.cpp
+        node/control.cpp
         src/utility.cpp
         )
 
@@ -75,17 +75,17 @@ target_link_libraries( stereo_cali_node
         ${PROJECT_NAME}
         )
 
-add_executable( sweepRobotnode src/main.cpp)
+add_executable( sweepRobotnode node/main.cpp)
 target_link_libraries( sweepRobotnode
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}
         )
-add_executable( keyboard_node src/keyboard.cpp)
+add_executable( keyboard_node node/keyboard.cpp)
 target_link_libraries( keyboard_node
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}
         )
-add_executable( stereo_vo_node src/stereo_vo.cpp)
+add_executable( stereo_vo_node node/stereo_vo.cpp)
 target_link_libraries( stereo_vo_node
         ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
@@ -99,7 +99,7 @@ target_link_libraries( odometer_node
         ${PROJECT_NAME}
         )
 
-add_executable( control_node src/control.cpp)
+add_executable( control_node node/control.cpp)
 target_link_libraries( control_node
         ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
@@ -114,7 +114,7 @@ target_link_libraries( modifyROSbag_node
         ${PROJECT_NAME}
         )
 
-add_executable( viconSub_node src/viconSub.cpp)
+add_executable( viconSub_node node/viconSub.cpp)
 target_link_libraries( viconSub_node
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}

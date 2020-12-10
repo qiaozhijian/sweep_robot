@@ -79,7 +79,7 @@ public:
     uint8 UndisImage(rosbag::MessageInstance m);
     int RosbagInit();
     MyRobot(bool writeOdo, bool writeBag);
-    void SaveRobotData(const string &filename,double time);
+    void SaveRobotData(double time, uint64_t time_ns);
     void SaveOdometer(const string &filename,double time);
 
     ofstream odometryFile;

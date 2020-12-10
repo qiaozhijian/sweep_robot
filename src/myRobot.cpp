@@ -205,15 +205,44 @@ int MyRobot::RosbagInit() {
     ROS_INFO("Init finish");
 }
 
-void MyRobot::SaveRobotData(const string &filename, double time) {
+void MyRobot::SaveRobotData(double time, uint64_t time_ns) {
+
+    string filename = dir + "./robot.txt";
     if (allReady)
         ROS_INFO(filename.c_str());
+
     ofstream f;
     f.open(filename.c_str(), ios::out | ios::app);
     f << fixed;
     f << setprecision(9) << time << " " << gyro_x << " " << gyro_y << " " << gyro_z << " " << accel_x << " " << accel_y
       << " " << accel_z << " " << odometer_x << " " << odometer_y << " " << odometer_theta << endl;
     f.close();
+
+#define SIZE_EVERY_MSG 14
+    float data[SIZE_EVERY_MSG];
+    uint64_t timeStamps[1];
+    timeStamps[0] = time_ns;
+    data[0] = gyro_x;
+    data[1] = gyro_y;
+    data[2] = gyro_z;
+    data[3] = accel_x;
+    data[4] = accel_y;
+    data[5] = accel_z;
+    data[6] = odometer_x;
+    data[7] = odometer_y;
+    data[8] = odometer_theta;
+    data[9] = float(pulseLeft);
+    data[10] = float(pulseRight);
+    data[11] = roll;
+    data[12] = pitch;
+    data[13] = yaw;
+    std::ofstream outF(dir + "./robot.bin", std::ios::binary | std::ios::app);
+    std::ofstream outF2(dir + "./robot_timeStamp.bin", std::ios::binary | std::ios::app);
+    outF.write(reinterpret_cast<char*>(data), sizeof(data));
+    outF.close();
+    outF2.write(reinterpret_cast<char*>(timeStamps), sizeof(timeStamps));
+    outF2.close();
+
 }
 
 void MyRobot::SaveOdometer(const string &filename, double time) {

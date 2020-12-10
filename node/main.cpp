@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
                 //else
                 //    ROS_INFO("delta time: %d",pmyData->chassisTime);
                 IMU_pub.publish(imu_data);
-                pmyData->SaveRobotData(pmyData->dir + "./robot.txt",imu_data.header.stamp.toSec());
+                pmyData->SaveRobotData(imu_data.header.stamp.toSec(),imu_data.header.stamp.toNSec());
                 pmyData->SaveOdometer(pmyData->dir + "./odometry.txt",imu_data.header.stamp.toSec());
 
                 ROS_INFO("Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f.",pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z, pmyData->accel_x,

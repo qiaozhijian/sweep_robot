@@ -11,27 +11,7 @@
 <!--    控制机器人移动-->
     <node pkg="sweep_robot" type="control_node"    name="asad"    output="screen"/>
 
-    <node pkg="sweep_robot" type="stereo_vo_node" name="stereo_video_node" output="screen">
-<!--        摄像头的USB序号-->
-        <param name="CAM_ID" value="0" type="str"/>
-<!--        是否降低图像采样频率-->
-        <param name="DOWN_SAMPLE" value="0" type="str"/>
-<!--        是否保存图像-->
-        <param name="SAVE" value="1" type="str"/>
-<!--        是否转换为灰度图像-->
-        <param name="GREY" value="0" type="str"/>
-    </node>
-
 <!--    记录ROS包-->
     <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw vicon/sweeper/sweeper"/>
 
-<!--    接收VICONS数据-->
-	<node pkg="vicon_bridge" type="vicon_bridge" name="vicon" output="screen">
-		<param name="stream_mode" value="ClientPull" type="str" />
-		<param name="datastream_hostport" value="192.168.10.1:801" type="str" />
-		<param name="tf_ref_frame_id" value="/world" type="str" />
-		</node>
-
-    <!--    保存VICONS数据-->
-    <node pkg="sweep_robot" type="viconSub_node"    name="dw645a"  output="screen"/>
 </launch>

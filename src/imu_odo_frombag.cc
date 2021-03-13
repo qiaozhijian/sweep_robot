@@ -82,14 +82,14 @@ int main(int argc, char **argv) {
 
     // Location of the ROS bag we want to read in
 //    std::string path_to_bag = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/01/2020-07-26-19-47-34.bag";
-    //std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/02/2020-07-26-19-49-21.bag";
-    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/03/2020-07-26-19-50-56.bag";
+//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/02/2020-07-26-19-49-21.bag";
+//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/03/2020-07-26-19-50-56.bag";
 //    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/04/2020-07-29-18-40-03.bag";
-    //std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/05/2020-07-29-18-41-52.bag";
-    //std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/06/2020-07-29-18-43-57.bag";
-    //std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/07/2020-08-12-16-41-28.bag";
-    //std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/08/2020-08-12-16-47-23.bag";
-//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/09/2020-08-12-16-54-51.bag";
+//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/05/2020-07-29-18-41-52.bag";
+//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/06/2020-07-29-18-43-57.bag";
+//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/07/2020-08-12-16-41-28.bag";
+//    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/08/2020-08-12-16-47-23.bag";
+    std::string path_to_bag="/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/09/2020-08-12-16-54-51.bag";
 //    std::string path_to_bag = "/media/qzj/Document/grow/research/slamDataSet/sweepRobot/round3/10/2020-09-25-13-30-56.bag";
 
     ROS_INFO("ros bag path is: %s", path_to_bag.c_str());
@@ -154,81 +154,44 @@ int main(int argc, char **argv) {
         }
     }
 
+    // save
     uint32_t size_imu = imugb.imuBuf.size();
 #define SIZE_EVERY_MSG 14
-    float imu_odo[SIZE_EVERY_MSG];
-    uint64_t timeStamps[1];
+    float imu_odo[size_imu * SIZE_EVERY_MSG];
+    uint64_t timeStamps[size_imu];
     uint64_t cnt = 0;
     while (!imugb.imuBuf.empty()) {
         sensor_msgs::ImuConstPtr imu_msg = imugb.imuBuf.front();
-        timeStamps[0] = imu_msg->header.stamp.toNSec();
-        imu_odo[0] = imu_msg->angular_velocity.x;
-        imu_odo[1] = imu_msg->angular_velocity.y;
-        imu_odo[2] = imu_msg->angular_velocity.z;
-        imu_odo[3] = imu_msg->linear_acceleration.x;
-        imu_odo[4] = imu_msg->linear_acceleration.y;
-        imu_odo[5] = imu_msg->linear_acceleration.z;
-        imu_odo[6] = imu_msg->angular_velocity_covariance[0];
-        imu_odo[7] = imu_msg->angular_velocity_covariance[1];
-        imu_odo[8] = imu_msg->angular_velocity_covariance[2];
-        imu_odo[9] = imu_msg->angular_velocity_covariance[4];
-        imu_odo[10] = imu_msg->angular_velocity_covariance[5];
-        imu_odo[11] = imu_msg->angular_velocity_covariance[6];
-        imu_odo[12] = imu_msg->angular_velocity_covariance[7];
-        imu_odo[13] = imu_msg->angular_velocity_covariance[8];
+        timeStamps[cnt] = imu_msg->header.stamp.toNSec();
+        imu_odo[SIZE_EVERY_MSG * cnt + 0] = imu_msg->angular_velocity.x;
+        imu_odo[SIZE_EVERY_MSG * cnt + 1] = imu_msg->angular_velocity.y;
+        imu_odo[SIZE_EVERY_MSG * cnt + 2] = imu_msg->angular_velocity.z;
+        imu_odo[SIZE_EVERY_MSG * cnt + 3] = imu_msg->linear_acceleration.x;
+        imu_odo[SIZE_EVERY_MSG * cnt + 4] = imu_msg->linear_acceleration.y;
+        imu_odo[SIZE_EVERY_MSG * cnt + 5] = imu_msg->linear_acceleration.z;
+        imu_odo[SIZE_EVERY_MSG * cnt + 6] = imu_msg->angular_velocity_covariance[0];
+        imu_odo[SIZE_EVERY_MSG * cnt + 7] = imu_msg->angular_velocity_covariance[1];
+        imu_odo[SIZE_EVERY_MSG * cnt + 8] = imu_msg->angular_velocity_covariance[2];
+        imu_odo[SIZE_EVERY_MSG * cnt + 9] = imu_msg->angular_velocity_covariance[4];
+        imu_odo[SIZE_EVERY_MSG * cnt + 10] = imu_msg->angular_velocity_covariance[5];
+        imu_odo[SIZE_EVERY_MSG * cnt + 11] = imu_msg->angular_velocity_covariance[6];
+        imu_odo[SIZE_EVERY_MSG * cnt + 12] = imu_msg->angular_velocity_covariance[7];
+        imu_odo[SIZE_EVERY_MSG * cnt + 13] = imu_msg->angular_velocity_covariance[8];
         cnt++;
         imugb.imuBuf.pop();
-        std::ofstream outF("imu_odo.bin", std::ios::binary | std::ios::app);
-        std::ofstream outF2("timeStamp.bin", std::ios::binary | std::ios::app);
-        outF.write(reinterpret_cast<char*>(imu_odo), sizeof(imu_odo));
-        outF.close();
-        outF2.write(reinterpret_cast<char*>(timeStamps), sizeof(timeStamps));
-        outF2.close();
 //        cout << e_x << " " << e_y << endl;
 //        igb.imu_odo_f << t << " " << dx << " " << dy << " " << dz << " " << rx << " " << ry << " " << rz << " " << e_x << " " << e_y << endl;
     }
 
+    std::ofstream outF("imu_odo.bin", std::ios::binary);
+    outF.write(reinterpret_cast<char*>(imu_odo), sizeof(imu_odo));
+    outF.close();
 
+    std::ofstream outF2("timeStamp.bin", std::ios::binary);
+    outF2.write(reinterpret_cast<char*>(timeStamps), sizeof(timeStamps));
+    outF2.close();
 
-
-//    // save
-//    uint32_t size_imu = imugb.imuBuf.size();
-//#define SIZE_EVERY_MSG 14
-//    float imu_odo[size_imu * SIZE_EVERY_MSG];
-//    uint64_t timeStamps[size_imu];
-//    uint64_t cnt = 0;
-//    while (!imugb.imuBuf.empty()) {
-//        sensor_msgs::ImuConstPtr imu_msg = imugb.imuBuf.front();
-//        timeStamps[cnt] = imu_msg->header.stamp.toNSec();
-//        imu_odo[SIZE_EVERY_MSG * cnt + 0] = imu_msg->angular_velocity.x;
-//        imu_odo[SIZE_EVERY_MSG * cnt + 1] = imu_msg->angular_velocity.y;
-//        imu_odo[SIZE_EVERY_MSG * cnt + 2] = imu_msg->angular_velocity.z;
-//        imu_odo[SIZE_EVERY_MSG * cnt + 3] = imu_msg->linear_acceleration.x;
-//        imu_odo[SIZE_EVERY_MSG * cnt + 4] = imu_msg->linear_acceleration.y;
-//        imu_odo[SIZE_EVERY_MSG * cnt + 5] = imu_msg->linear_acceleration.z;
-//        imu_odo[SIZE_EVERY_MSG * cnt + 6] = imu_msg->angular_velocity_covariance[0];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 7] = imu_msg->angular_velocity_covariance[1];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 8] = imu_msg->angular_velocity_covariance[2];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 9] = imu_msg->angular_velocity_covariance[4];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 10] = imu_msg->angular_velocity_covariance[5];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 11] = imu_msg->angular_velocity_covariance[6];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 12] = imu_msg->angular_velocity_covariance[7];
-//        imu_odo[SIZE_EVERY_MSG * cnt + 13] = imu_msg->angular_velocity_covariance[8];
-//        cnt++;
-//        imugb.imuBuf.pop();
-////        cout << e_x << " " << e_y << endl;
-////        igb.imu_odo_f << t << " " << dx << " " << dy << " " << dz << " " << rx << " " << ry << " " << rz << " " << e_x << " " << e_y << endl;
-//    }
-//
-//    std::ofstream outF("imu_odo.bin", std::ios::binary);
-//    outF.write(reinterpret_cast<char*>(imu_odo), sizeof(imu_odo));
-//    outF.close();
-//
-//    std::ofstream outF2("timeStamp.bin", std::ios::binary);
-//    outF2.write(reinterpret_cast<char*>(timeStamps), sizeof(timeStamps));
-//    outF2.close();
-//
-//    cout << "finish " << size_imu << endl;
+    cout << "finish " << size_imu << endl;
 
     return 0;
 }

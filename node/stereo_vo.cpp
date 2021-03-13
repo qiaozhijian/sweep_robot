@@ -61,7 +61,6 @@ void GetKey(char& key)
         tcsetattr(STDIN_FILENO, TCSANOW, &new_settings); //
         key = getchar();
         tcsetattr(STDIN_FILENO, TCSANOW, &stored_settings);
-
     }
 }
 

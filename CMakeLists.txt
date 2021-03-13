@@ -69,12 +69,12 @@ set(sweepRobot_srclib
 add_library(${PROJECT_NAME} ${sweepRobot_srclib} )
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
-add_executable( stereo_cali_node src/stereo_cali.cpp)
-target_link_libraries( stereo_cali_node
-        ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
-        )
-
+#add_executable( stereo_cali_node src/stereo_cali.cpp)
+#target_link_libraries( stereo_cali_node
+#        ${catkin_LIBRARIES}
+#        ${PROJECT_NAME}
+#        )
+#
 add_executable( sweepRobotnode node/main.cpp)
 target_link_libraries( sweepRobotnode
         ${catkin_LIBRARIES}
@@ -85,49 +85,49 @@ target_link_libraries( keyboard_node
         ${catkin_LIBRARIES}
         ${PROJECT_NAME}
         )
-add_executable( stereo_vo_node node/stereo_vo.cpp)
-target_link_libraries( stereo_vo_node
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        ${PROJECT_NAME}
-        )
+#add_executable( stereo_vo_node node/stereo_vo.cpp)
+#target_link_libraries( stereo_vo_node
+#        ${catkin_LIBRARIES}
+#        ${OpenCV_LIBS}
+#        ${PROJECT_NAME}
+#        )
 
-add_executable( odometer_node src/odometer.cpp)
-target_link_libraries( odometer_node
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        ${PROJECT_NAME}
-        )
-
+#add_executable( odometer_node src/odometer.cpp)
+#target_link_libraries( odometer_node
+#        ${catkin_LIBRARIES}
+#        ${OpenCV_LIBS}
+#        ${PROJECT_NAME}
+#        )
+#
 add_executable( control_node node/control.cpp)
 target_link_libraries( control_node
         ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
         ${PROJECT_NAME}
         )
-
-
-add_executable( modifyROSbag_node src/modifyROSbag.cpp)
-target_link_libraries( modifyROSbag_node
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        ${PROJECT_NAME}
-        )
-
-add_executable( viconSub_node node/viconSub.cpp)
-target_link_libraries( viconSub_node
-        ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
-        )
-
-add_executable( odoAcc_node src/odoAcc.cpp)
-target_link_libraries( odoAcc_node
-        ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
-        )
-
-add_executable( imu_odo_frombag src/imu_odo_frombag.cc)
-target_link_libraries( imu_odo_frombag
-        ${catkin_LIBRARIES}
-        ${PROJECT_NAME}
-        )
+#
+#
+#add_executable( modifyROSbag_node src/modifyROSbag.cpp)
+#target_link_libraries( modifyROSbag_node
+#        ${catkin_LIBRARIES}
+#        ${OpenCV_LIBS}
+#        ${PROJECT_NAME}
+#        )
+#
+#add_executable( viconSub_node node/viconSub.cpp)
+#target_link_libraries( viconSub_node
+#        ${catkin_LIBRARIES}
+#        ${PROJECT_NAME}
+#        )
+#
+#add_executable( odoAcc_node src/odoAcc.cpp)
+#target_link_libraries( odoAcc_node
+#        ${catkin_LIBRARIES}
+#        ${PROJECT_NAME}
+#        )
+#
+#add_executable( imu_odo_frombag src/imu_odo_frombag.cc)
+#target_link_libraries( imu_odo_frombag
+#        ${catkin_LIBRARIES}
+#        ${PROJECT_NAME}
+#        )

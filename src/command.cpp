@@ -355,6 +355,7 @@ void Move(float vel_ms, float w_rads) {
     MyRobot* pmyData = getMyData();
     int16_t vel = int16_t(vel_ms * 1000.0);
     int16_t w = int16_t(w_rads * 1000.0);
+    ROS_ERROR("vel = %d, w = %d", vel, w);
     UART_TYPE0C data = {0};
     data.startCode = SWOP(0xa5a5);
     data.len = SWOP(0x000c);
@@ -367,10 +368,10 @@ void Move(float vel_ms, float w_rads) {
     data.endCode = SWOP(0x5a5a);
     ros_ser.write(data.units, 16);
     pmyData->cnt++;
-    //cout<<"write: ";
-    //for(int i=0;i<16;i++)
-    //    cout<<setbase(16)<<int(data.units[i])<<" ";
-    //cout<<endl;
+    cout<<"write: ";
+    for(int i=0;i<16;i++)
+        cout<<setbase(16)<<int(data.units[i])<<" ";
+    cout<<endl;
 }
 
 //a5 a5 00 12 00 fd 02 06 ff 01 01 02 03 04 05 06 07 08 f1 f4 5a 5a//设置上报时间

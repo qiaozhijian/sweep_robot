@@ -36,8 +36,8 @@ int main(int argc, char **argv) {
     //return 0;
     try {
         ros_ser.setPort("/dev/ttyUSB0");
-        ros_ser.setBaudrate(460800);
-        serial::Timeout to = serial::Timeout::simpleTimeout(1000);
+        ros_ser.setBaudrate(115200); //原460800，现根据扫地机器人说明书调
+        serial::Timeout to = serial::Timeout::simpleTimeout(200);//原1000，现根据扫地机器人说明书调
         ros_ser.setTimeout(to);
         ros_ser.open();
     }
@@ -46,8 +46,10 @@ int main(int argc, char **argv) {
         ROS_ERROR_STREAM("Unable to open port ");
         return -1;
     }
-    if (ros_ser.isOpen())
-        ROS_INFO_STREAM("Serial Port opened");
+    if (ros_ser.isOpen()){
+        //todo Check which node opens serial port
+        ROS_INFO_STREAM("Serial Port opened in main");
+    }
     else
         return -1;
 
@@ -55,7 +57,7 @@ int main(int argc, char **argv) {
     int freqControl = 5;
     uint8_t freqCount = 0;
     static uint8_t movingLast = 0;
-    // 打开传感器开关
+    // 打开传感器开关 todo 读串口数据
     ros::Rate loop_rate(freqSerial);
     while (ros::ok()) {
         if (ros_ser.available()) {
@@ -70,18 +72,25 @@ int main(int argc, char **argv) {
             break;
         }
 
-        if (!pmyData->isAllOn)
+        if (!pmyData->isAllOn){
             TurnAllSwitch(1);
-        if (!pmyData->allSensorEnable)
+            pmyData->isAllOn = true;
+        }
+        if (!pmyData->allSensorEnable){
             AskSensorStatus();
-        if (!pmyData->sendRegular)
+            pmyData->allSensorEnable = true;
+        }
+        if (!pmyData->sendRegular){
             AskReportRegularly();
+            pmyData->sendRegular = true;
+        }
         ros::spinOnce();
         loop_rate.sleep();
     }
 
-    while(vo_dir=="" && isIMUrecord.compare("1")!=0)
+    while(vo_dir.empty() && isIMUrecord == "1")
     {
+        ROS_ERROR("123");
         ros::spinOnce();
     }
     pmyData->dir = vo_dir;

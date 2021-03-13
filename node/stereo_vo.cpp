@@ -12,7 +12,7 @@ int height = 480;
 //int width = 2560;
 //int height = 720;
 //最快50Hz，再往上也不行了
-int FPS = 50;
+int FPS = 30;
 string dir="";
 
 void createDir() {
@@ -65,7 +65,7 @@ void GetKey(char& key)
     }
 }
 
-//
+
 int main(int argc, char **argv)            //程序主函数
 {
     ros::init(argc, argv, "stereo_video_node");
@@ -158,8 +158,7 @@ int main(int argc, char **argv)            //程序主函数
         if (cap.read(frame)) {
             count++;
             tImage = ros::Time::now();
-            if(grey!="0")
-            {
+            if (grey != "0") {
                 //    变成灰度图
                 if (frame.channels() == 3) {
                     cvtColor(frame, frameGrey, CV_BGR2GRAY);
@@ -169,8 +168,7 @@ int main(int argc, char **argv)            //程序主函数
                 //cout<<frameGrey.size()<<endl;
                 frame_L = frameGrey(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
                 frame_R = frameGrey(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
-            }else
-            {
+            } else {
                 frame_L = frame(Rect(0, 0, width / 2, height));  //获取缩放后左Camera的图像
                 frame_R = frame(Rect(width / 2, 0, width / 2, height)); //获取缩放后右Camera的图像
             }
@@ -182,10 +180,10 @@ int main(int argc, char **argv)            //程序主函数
                 imLeftRect = frame_L;
                 imRightRect = frame_R;
             }
-            if((down_sample=="1" && count%10==0) || down_sample=="0")
-            {
+
+            if ((down_sample == "1" && count % 10 == 0) || down_sample == "0") {    //只有要降采样且count%10!=0时才不save不发布
                 string encoding = "mono8";
-                if(grey=="0")
+                if (grey == "0")
                     encoding = "bgr8";
                 sensor_msgs::ImagePtr msg0 = cv_bridge::CvImage(std_msgs::Header(), encoding, imLeftRect).toImageMsg();
                 sensor_msgs::ImagePtr msg1 = cv_bridge::CvImage(std_msgs::Header(), encoding, imRightRect).toImageMsg();
@@ -197,24 +195,24 @@ int main(int argc, char **argv)            //程序主函数
                 pub0.publish(msg0);
                 pub1.publish(msg1);
 
-                if (saveImages!="0") {
+                if (saveImages != "0") {
                     double now = tImage.toSec();
-                    string image_L_path = dir + "left/" + to_string(uint64_t(now*1e9)) + ".jpg";
-                    string image_R_path = dir + "right/" + to_string(uint64_t(now*1e9)) + ".jpg";
-                    SaveCameraTime(dir + "cameraStamps.txt", now*1e9);
+                    string image_L_path = dir + "left/" + to_string(uint64_t(now * 1e9)) + ".jpg";
+                    string image_R_path = dir + "right/" + to_string(uint64_t(now * 1e9)) + ".jpg";
+                    SaveCameraTime(dir + "cameraStamps.txt", now * 1e9);
                     imwrite(image_L_path, imLeftRect);
                     imwrite(image_R_path, imRightRect);
-                    if(count%10==0)
+                    if (count % 10 == 0)
                         ROS_INFO("save %d", count);
 
                     //32对应空格
                     if (key == 32) {
-                        key=0;
-                        string image_L_path = dir + "space/left/" + to_string(uint64_t(now*1e9)) + ".jpg";
-                        string image_R_path = dir + "space/right/" + to_string(uint64_t(now*1e9)) + ".jpg";
+                        key = 0;
+                        string image_L_path = dir + "space/left/" + to_string(uint64_t(now * 1e9)) + ".jpg";
+                        string image_R_path = dir + "space/right/" + to_string(uint64_t(now * 1e9)) + ".jpg";
                         imwrite(image_L_path, frame_L);
                         imwrite(image_R_path, frame_L);
-//                        SaveCameraTime(dir + "cameraStamps.txt", now*1e9);
+                        //SaveCameraTime(dir + "cameraStamps.txt", now*1e9);
                         spaceCnt++;
                         ROS_INFO("save space img %d", spaceCnt);
                     }
@@ -226,7 +224,10 @@ int main(int argc, char **argv)            //程序主函数
                 imshow("Video_L", imRightRect);
                 waitKey(1);
             }
-        } else {
+
+
+        }
+        else {
             if (!cameraFail) {
                 ROS_INFO("fail");
                 cameraFail = true;

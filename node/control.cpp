@@ -9,7 +9,7 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
 
-bool mainReady = false;
+bool mainReady = true;
 void callback(const std_msgs::Int32 &msg);
 void callbackMain(const std_msgs::Bool &msg);
 
@@ -31,14 +31,17 @@ int main(int argc, char **argv) {
 
     while(!mainReady)
     {
+        ROS_ERROR("in while(!mainReady)");
         ros::spinOnce();
     }
 
     //return 0;
+
+    //todo: 串口初始化
     try {
         ros_ser.setPort("/dev/ttyUSB0");
-        ros_ser.setBaudrate(460800);
-        serial::Timeout to = serial::Timeout::simpleTimeout(1000);
+        ros_ser.setBaudrate(115200);//原460800，现根据扫地机器人说明书调
+        serial::Timeout to = serial::Timeout::simpleTimeout(200);//原1000，现根据扫地机器人说明书调
         ros_ser.setTimeout(to);
         ros_ser.open();
     }
@@ -47,8 +50,10 @@ int main(int argc, char **argv) {
         ROS_ERROR_STREAM("Unable to open port ");
         return -1;
     }
-    if (ros_ser.isOpen())
-        ROS_INFO_STREAM("Serial Port opened");
+    if (ros_ser.isOpen()){
+        //todo Check which node opens serial port
+        ROS_INFO_STREAM("Serial Port opened in control");
+    }
     else
         return -1;
 
@@ -75,11 +80,16 @@ int main(int argc, char **argv) {
 }
 
 void callbackMain(const std_msgs::Bool &msg) {
-
+    ROS_ERROR("In callbackMain");
     mainReady = msg.data;
+//    if(mainReady)
+//        ROS_ERROR("main ready get");
+//    else
+//        ROS_ERROR("main ready not get");
 }
 
 void callback(const std_msgs::Int32 &msg) {
+    ROS_ERROR("In callback");
     MyRobot* pmyData = getMyData();
     ROS_INFO(to_string(msg.data).c_str());
     switch (msg.data) {

@@ -29,12 +29,11 @@ int main(int argc, char **argv) {
     // 打开传感器开关
     ros::Rate loop_rate(freqControl);
 
-    while(!mainReady)
-    {
-        ros::spinOnce();
-    }
+//    while(!mainReady)
+//    {
+//        ros::spinOnce();
+//    }
 
-    //return 0;
     try {
         ros_ser.setPort("/dev/ttyUSB0");
         ros_ser.setBaudrate(460800);
@@ -51,6 +50,32 @@ int main(int argc, char **argv) {
         ROS_INFO_STREAM("Serial Port opened");
     else
         return -1;
+
+    int freqSerial = 400;
+    uint8_t freqCount = 0;
+    // 打开传感器开关
+    while (ros::ok()) {
+        if (ros_ser.available()) {
+            std_msgs::UInt8MultiArray serial_data;
+            size_t p = ros_ser.available(); //获取串口数据个数
+            ros_ser.read(serial_data.data, p);
+            HandleUART(serial_data.data);
+        }
+
+        if (pmyData->isAllOn && pmyData->allSensorEnable && pmyData->sendRegular) {
+            ROS_INFO("all sensors on.");
+            break;
+        }
+
+        if (!pmyData->isAllOn)
+            TurnAllSwitch(1);
+        if (!pmyData->allSensorEnable)
+            AskSensorStatus();
+        if (!pmyData->sendRegular)
+            AskReportRegularly();
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
 
     //std_msgs::Bool controlReady;
     //controlReady.data = true;
@@ -93,7 +118,7 @@ void callback(const std_msgs::Int32 &msg) {
                 pmyData->moving |= 0x01;
                 ROS_INFO("ws\r\n");
                 Move(0.3f, 0.f);
-                ROS_INFO("w\r\n");
+                ROS_INFO("w Move\r\n");
             }
             break;
             //    s

@@ -1,0 +1,13 @@
+<launch>
+    <!--- Sim Time -->
+    <param name="/use_sim_time" value="false" />
+
+<!--    启动录制数据集的总结点，录制IMU，轮速计等信息-->
+<!--    <node pkg="sweep_robot" type="sweepRobotnode"    name="ddsdfs"    output="screen"/>-->
+<!--    监控键盘按键-->
+    <node pkg="sweep_robot" type="keyboard_node"    name="ssdfds"    output="screen"/>
+<!--    控制机器人移动-->
+    <node pkg="sweep_robot" type="control_node"    name="asad"    output="screen"/>
+
+
+</launch>

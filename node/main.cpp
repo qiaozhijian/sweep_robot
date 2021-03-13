@@ -80,10 +80,10 @@ int main(int argc, char **argv) {
         loop_rate.sleep();
     }
 
-    while(vo_dir=="" && isIMUrecord.compare("1")!=0)
-    {
-        ros::spinOnce();
-    }
+//    while(vo_dir=="" && isIMUrecord.compare("1")!=0)
+//    {
+//        ros::spinOnce();
+//    }
     pmyData->dir = vo_dir;
 
     std_msgs::Bool mainReady;
@@ -139,8 +139,8 @@ int main(int argc, char **argv) {
                 pmyData->SaveRobotData(imu_data.header.stamp.toSec(),imu_data.header.stamp.toNSec());
                 pmyData->SaveOdometer(pmyData->dir + "./odometry.txt",imu_data.header.stamp.toSec());
 
-                ROS_INFO("Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f.",pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z, pmyData->accel_x,
-                         pmyData->accel_y, pmyData->accel_z);
+//                ROS_INFO("Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f.",pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z, pmyData->accel_x,
+//                         pmyData->accel_y, pmyData->accel_z);
                 //ROS_INFO("delta time: %d,Gyro(x,y,z): %f, %f, %f; Acc(x,y,z): %f, %f, %f; roll %f, pitch %f. yaw %f.",
                 //         pmyData->chassisTime - reportLast, pmyData->gyro_x, pmyData->gyro_y, pmyData->gyro_z, pmyData->accel_x,
                 //         pmyData->accel_y, pmyData->accel_z, pmyData->roll, pmyData->pitch, pmyData->yaw);

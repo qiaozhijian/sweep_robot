@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     // 打开传感器开关
     ros::Rate loop_rate(freqControl);
 
-    while(!mainReady)
+    while(!mainReady && ros::ok())
     {
         ros::spinOnce();
     }
@@ -81,6 +81,10 @@ void callbackMain(const std_msgs::Bool &msg) {
 
 void callback(const std_msgs::Int32 &msg) {
     MyRobot* pmyData = getMyData();
+    if(!mainReady){
+        ROS_INFO("cannot control! !mainReady");
+        return;
+    }
     ROS_INFO(to_string(msg.data).c_str());
     switch (msg.data) {
         // esc

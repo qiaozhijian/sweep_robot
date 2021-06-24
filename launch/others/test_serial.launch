@@ -1,0 +1,19 @@
+<launch>
+    <!--- Sim Time -->
+    <param name="/use_sim_time" value="false" />
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find sweep_robot)/launch/my.rviz" />
+
+<!--    启动录制数据集的总结点，录制IMU，轮速计等信息-->
+    <node name="sweepRobotnode" pkg="sweep_robot" type="sweepRobotnode" output="screen">
+        <param name="RECORD_IMU" type="string" value="1" />
+    </node>
+<!--    监控键盘按键-->
+    <node pkg="sweep_robot" type="keyboard_node"    name="ssdfds"    output="screen"/>
+<!--    控制机器人移动-->
+    <node pkg="sweep_robot" type="control_node"    name="asad"    output="screen"/>
+
+<!--    记录ROS包-->
+<!--    <node pkg="rosbag" type="record" name="bag_record" args="/imu0 /cam0/image_raw /cam1/image_raw vicon/sweeper/sweeper"/>-->
+
+</launch>
